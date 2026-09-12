@@ -1,0 +1,3077 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Office Management System</title>
+  <meta name="description" content="Sistem manajemen kantor profesional untuk peraturan & SOP, reservasi meeting room, dan buku tamu dengan Google Sheets dan Google Drive." />
+  <meta property="og:title" content="Office Management System" />
+  <meta property="og:description" content="Sistem manajemen kantor profesional untuk peraturan & SOP, reservasi meeting room, dan buku tamu dengan Google Sheets dan Google Drive." />
+  
+  <!-- Google Fonts & Bootstrap 5 & Bootstrap Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-navy: #0f172a;
+      --secondary-navy: #1e293b;
+      --accent-blue: #2563eb;
+      --accent-hover: #1d4ed8;
+      --bg-light: #f8fafc;
+      --surface: #ffffff;
+      --border-color: #e2e8f0;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+    }
+
+    /* Navbar */
+    .navbar-custom {
+      background-color: var(--primary-navy);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      padding: 0.85rem 1rem;
+    }
+    .navbar-brand {
+      color: #ffffff !important;
+      font-weight: 700;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .nav-link {
+      color: #cbd5e1 !important;
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 0.5rem 0.9rem !important;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: #ffffff !important;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .btn-login-nav {
+      background-color: var(--accent-blue);
+      color: white !important;
+      border-radius: 8px;
+      font-weight: 600;
+      padding: 0.45rem 1.1rem;
+      transition: background 0.2s;
+    }
+    .btn-login-nav:hover {
+      background-color: var(--accent-hover);
+    }
+
+    /* Hero & Cards */
+    .hero-section {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      padding: 4rem 1.5rem;
+      border-radius: 16px;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+    }
+    .card-feature {
+      background: var(--surface);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+      height: 100%;
+    }
+    .card-feature:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.08);
+      border-color: #cbd5e1;
+    }
+    .feature-icon-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Admin Sidebar Layout */
+    .admin-layout {
+      display: flex;
+      min-height: calc(100vh - 72px);
+    }
+    .admin-sidebar {
+      width: 260px;
+      background-color: var(--primary-navy);
+      color: #e2e8f0;
+      padding: 1.5rem 1rem;
+      flex-shrink: 0;
+    }
+    .admin-sidebar-nav .nav-link {
+      color: #94a3b8 !important;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem !important;
+      margin-bottom: 0.35rem;
+      border-radius: 8px;
+    }
+    .admin-sidebar-nav .nav-link:hover,
+    .admin-sidebar-nav .nav-link.active {
+      color: #ffffff !important;
+      background-color: rgba(255, 255, 255, 0.12);
+      font-weight: 600;
+    }
+    .admin-content {
+      flex-grow: 1;
+      background-color: var(--bg-light);
+      padding: 2rem;
+      overflow-x: hidden;
+    }
+
+    /* Tables & UI Components */
+    .app-card {
+      background: var(--surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .table-modern {
+      margin-bottom: 0;
+      vertical-align: middle;
+    }
+    .table-modern thead th {
+      background-color: #f1f5f9;
+      color: #475569;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.85rem 1rem;
+    }
+    .table-modern tbody td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid #f1f5f9;
+      color: #334155;
+    }
+    .badge-status {
+      font-size: 0.78rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    /* Camera Live & Canvas */
+    .camera-box {
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    #cameraVideo {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    #cameraCanvas {
+      display: none;
+    }
+    .guest-thumb {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      cursor: pointer;
+    }
+
+    /* Toast Container */
+    .toast-container-fixed {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1080;
+    }
+
+    @media (max-width: 991.98px) {
+      .admin-layout { flex-direction: column; }
+      .admin-sidebar { width: 100%; padding: 1rem; }
+      .admin-sidebar-nav { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+      .admin-sidebar-nav .nav-link { margin-bottom: 0; }
+      .admin-content { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top" id="mainNavbar">
+    <div class="container-fluid px-lg-4">
+      <a class="navbar-brand" href="#" onclick="navigateTo('home'); return false;">
+        <i class="bi bi-building-gear text-primary"></i>
+        <span>Office Management System</span>
+      </a>
+      <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+        <i class="bi bi-list fs-2 text-white"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3" id="publicNavLinks">
+          <li class="nav-item">
+            <a class="nav-link active" id="nav-home" href="#" onclick="navigateTo('home'); return false;">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav-peraturan" href="#" onclick="navigateTo('peraturan'); return false;">Peraturan & SOP</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav-meeting" href="#" onclick="navigateTo('meeting'); return false;">Meeting Room</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="nav-guest" href="#" onclick="navigateTo('guest'); return false;">Guest Visit</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center gap-2">
+          <!-- Connection Status Button -->
+          <button class="btn btn-sm btn-outline-light d-flex align-items-center gap-2 py-1 px-2 border-0 bg-white bg-opacity-10" id="btnGasStatus" onclick="openGasSettingsModal()" title="Status & Pengaturan Koneksi Google Apps Script">
+            <span class="status-indicator bg-warning" id="gasStatusDot" style="width:8px;height:8px;border-radius:50%;display:inline-block;"></span>
+            <span class="small fw-normal" id="gasStatusText" style="font-size: 0.78rem;">GAS: Lokal</span>
+          </button>
+
+          <!-- Admin Auth button -->
+          <div id="authNavButtons">
+            <button class="btn btn-login-nav d-flex align-items-center gap-1" onclick="navigateTo('login')">
+              <i class="bi bi-box-arrow-in-right"></i> Login Admin
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main App Root Container -->
+  <main id="appContainer" class="flex-grow-1">
+    
+    <!-- ==================== 1. HOME VIEW ==================== -->
+    <div id="view-home" class="container py-4">
+      <div class="hero-section text-center text-md-start">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h1 class="display-6 fw-bold mb-3">Selamat Datang di Office Management System</h1>
+            <p class="lead text-slate-300 mb-4" style="color: #cbd5e1;">
+              Kelola peraturan, ruang meeting, dan kunjungan tamu dengan mudah, terstruktur, dan terintegrasi langsung dengan Google Sheets & Drive.
+            </p>
+            <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
+              <button class="btn btn-primary px-4 py-2 fw-semibold" onclick="navigateTo('peraturan')">
+                <i class="bi bi-file-earmark-text me-1"></i> Lihat Peraturan
+              </button>
+              <button class="btn btn-light px-4 py-2 fw-semibold text-primary" onclick="navigateTo('meeting')">
+                <i class="bi bi-calendar2-plus me-1"></i> Booking Meeting
+              </button>
+              <button class="btn btn-outline-light px-4 py-2 fw-semibold" onclick="navigateTo('guest')">
+                <i class="bi bi-person-badge me-1"></i> Guest Visit
+              </button>
+            </div>
+          </div>
+          <div class="col-lg-4 text-center d-none d-lg-block">
+            <i class="bi bi-buildings text-primary opacity-75" style="font-size: 7.5rem;"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Core Navigation Cards -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="card-feature" onclick="navigateTo('peraturan')">
+            <div class="feature-icon-wrap bg-primary bg-opacity-10 text-primary">
+              <i class="bi bi-file-earmark-text-fill"></i>
+            </div>
+            <h5 class="fw-bold mb-2">1. Peraturan & SOP</h5>
+            <p class="text-muted small mb-0">Lihat dan download dokumen peraturan dan SOP resmi kantor.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="card-feature" onclick="navigateTo('meeting')">
+            <div class="feature-icon-wrap bg-success bg-opacity-10 text-success">
+              <i class="bi bi-calendar-event-fill"></i>
+            </div>
+            <h5 class="fw-bold mb-2">2. Meeting Room</h5>
+            <p class="text-muted small mb-0">Lihat jadwal dan booking ruang meeting tanpa bentrok waktu.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="card-feature" onclick="navigateTo('guest')">
+            <div class="feature-icon-wrap bg-info bg-opacity-10 text-info">
+              <i class="bi bi-person-vcard-fill"></i>
+            </div>
+            <h5 class="fw-bold mb-2">3. Guest Visit</h5>
+            <p class="text-muted small mb-0">Lihat daftar kunjungan tamu harian kantor secara terorganisir.</p>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+          <div class="card-feature" onclick="navigateTo('admin')">
+            <div class="feature-icon-wrap bg-dark bg-opacity-10 text-dark">
+              <i class="bi bi-gear-fill"></i>
+            </div>
+            <h5 class="fw-bold mb-2">4. Admin</h5>
+            <p class="text-muted small mb-0">Kelola seluruh data peraturan, approval meeting, dan buku tamu.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 2. PUBLIC PERATURAN & SOP ==================== -->
+    <div id="view-peraturan" class="container py-4" style="display: none;">
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <div>
+          <h3 class="fw-bold mb-1">Peraturan & SOP</h3>
+          <p class="text-muted small mb-0">Dokumen kebijakan, peraturan kerja, dan standar operasional perusahaan.</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" onclick="loadPublicRegulations()">
+          <i class="bi bi-arrow-clockwise"></i> Segarkan Data
+        </button>
+      </div>
+
+      <!-- Search & Date Filter Bar -->
+      <div class="app-card mb-3">
+        <div class="row g-2">
+          <div class="col-md-8">
+            <div class="input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+              <input type="text" id="regSearchInput" class="form-control" placeholder="Cari judul peraturan..." oninput="filterRegulationsTable()" />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <input type="date" id="regDateFilter" class="form-control" onchange="filterRegulationsTable()" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Public Table -->
+      <div class="app-card p-0 overflow-hidden">
+        <div class="table-responsive">
+          <table class="table table-hover table-modern mb-0" id="publicRegTable">
+            <thead>
+              <tr>
+                <th style="width: 60px;">No</th>
+                <th style="width: 130px;">Tanggal</th>
+                <th>Judul Peraturan</th>
+                <th style="width: 120px;" class="text-center">PDF</th>
+                <th style="width: 120px;" class="text-center">Gambar</th>
+                <th style="width: 140px;" class="text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="publicRegTableBody">
+              <tr>
+                <td colspan="6" class="text-center py-4 text-muted">
+                  <div class="spinner-border spinner-border-sm text-primary me-2"></div> Memuat data...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="p-3 border-top d-flex justify-content-between align-items-center" id="regPaginationWrap">
+          <small class="text-muted" id="regCountLabel">Menampilkan 0 data</small>
+          <ul class="pagination pagination-sm mb-0" id="regPagination"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 3. PUBLIC MEETING ROOM / BOOKING ==================== -->
+    <div id="view-meeting" class="container py-4" style="display: none;">
+      <div class="row g-4">
+        <!-- Form Booking Public -->
+        <div class="col-lg-5">
+          <div class="app-card">
+            <h4 class="fw-bold mb-3 d-flex align-items-center gap-2">
+              <i class="bi bi-calendar2-plus text-primary"></i>
+              <span>Booking Ruang Meeting</span>
+            </h4>
+            <p class="text-muted small">Silakan lengkapi formulir di bawah ini. Sistem akan mengecek ketersediaan waktu secara otomatis.</p>
+            
+            <form id="publicBookingForm" onsubmit="handlePublicBooking(event)">
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Tanggal Meeting <span class="text-danger">*</span></label>
+                <input type="date" id="bookDate" class="form-control" required />
+              </div>
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label class="form-label fw-semibold small">Jam Mulai <span class="text-danger">*</span></label>
+                  <input type="time" id="bookStartTime" class="form-control" required />
+                </div>
+                <div class="col-6">
+                  <label class="form-label fw-semibold small">Jam Selesai <span class="text-danger">*</span></label>
+                  <input type="time" id="bookEndTime" class="form-control" required />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Pilih Ruang <span class="text-danger">*</span></label>
+                <select id="bookRoom" class="form-select" required>
+                  <option value="">-- Pilih Ruang Meeting --</option>
+                  <option value="Ruang Meeting A">Ruang Meeting A (Kapasitas 10 Org)</option>
+                  <option value="Ruang Meeting B">Ruang Meeting B (Kapasitas 20 Org)</option>
+                  <option value="Ruang Meeting C">Ruang Meeting C (Kapasitas 6 Org)</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Agenda Meeting <span class="text-danger">*</span></label>
+                <input type="text" id="bookAgenda" class="form-control" placeholder="Contoh: Evaluasi Kinerja Q3" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Pihak yang Akan Hadir <span class="text-danger">*</span></label>
+                <textarea id="bookAttendees" class="form-control" rows="2" placeholder="Nama peserta atau divisi terkait..." required></textarea>
+              </div>
+              <button type="submit" id="btnSubmitBooking" class="btn btn-primary w-100 py-2 fw-semibold">
+                <i class="bi bi-send-check me-1"></i> Kirim Permohonan Booking
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Public Schedule Table -->
+        <div class="col-lg-7">
+          <div class="app-card p-0 overflow-hidden">
+            <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <h5 class="fw-bold mb-0">Jadwal Penggunaan Ruang</h5>
+              <div class="d-flex gap-2">
+                <input type="date" id="mrFilterDate" class="form-control form-control-sm" onchange="filterMeetingTable()" />
+                <select id="mrFilterRoom" class="form-select form-select-sm" onchange="filterMeetingTable()">
+                  <option value="">Semua Ruang</option>
+                  <option value="Ruang Meeting A">Ruang A</option>
+                  <option value="Ruang Meeting B">Ruang B</option>
+                  <option value="Ruang Meeting C">Ruang C</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover table-modern mb-0">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Tanggal</th>
+                    <th>Waktu</th>
+                    <th>Ruang</th>
+                    <th>Agenda</th>
+                    <th>Pihak Hadir</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="publicMeetingTableBody">
+                  <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">
+                      <div class="spinner-border spinner-border-sm text-primary me-2"></div> Memuat data...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="p-3 border-top d-flex justify-content-between align-items-center" id="mrPaginationWrap">
+              <small class="text-muted" id="mrCountLabel">Menampilkan 0 data</small>
+              <ul class="pagination pagination-sm mb-0" id="mrPagination"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 4. PUBLIC GUEST VISIT ==================== -->
+    <div id="view-guest" class="container py-4" style="display: none;">
+      <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <div>
+          <h3 class="fw-bold mb-1">Daftar Kunjungan Tamu (Guest Visit)</h3>
+          <p class="text-muted small mb-0">Daftar log kedatangan tamu kantor harian.</p>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" onclick="loadPublicGuestVisits()">
+          <i class="bi bi-arrow-clockwise"></i> Segarkan Data
+        </button>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="app-card mb-3">
+        <div class="row g-2">
+          <div class="col-md-4">
+            <label class="small text-muted mb-1">Filter Tanggal Visit</label>
+            <input type="date" id="gvFilterDate" class="form-control" onchange="filterGuestTable()" />
+          </div>
+          <div class="col-md-8">
+            <label class="small text-muted mb-1">Cari Tamu, Tujuan, atau Orang yang Ditemui</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+              <input type="text" id="gvSearchInput" class="form-control" placeholder="Ketik nama atau kata kunci..." oninput="filterGuestTable()" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Public Guest Table -->
+      <div class="app-card p-0 overflow-hidden">
+        <div class="table-responsive">
+          <table class="table table-hover table-modern mb-0">
+            <thead>
+              <tr>
+                <th style="width: 50px;">No</th>
+                <th style="width: 70px;" class="text-center">Foto</th>
+                <th>Nama Tamu</th>
+                <th>Tanggal</th>
+                <th>Tujuan Kunjungan</th>
+                <th>Bertemu Dengan</th>
+              </tr>
+            </thead>
+            <tbody id="publicGuestTableBody">
+              <tr>
+                <td colspan="6" class="text-center py-4 text-muted">
+                  <div class="spinner-border spinner-border-sm text-primary me-2"></div> Memuat data...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="p-3 border-top d-flex justify-content-between align-items-center" id="gvPaginationWrap">
+          <small class="text-muted" id="gvCountLabel">Menampilkan 0 data</small>
+          <ul class="pagination pagination-sm mb-0" id="gvPagination"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 5. ADMIN LOGIN ==================== -->
+    <div id="view-login" class="container py-5" style="display: none;">
+      <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+          <div class="app-card text-center p-4">
+            <div class="feature-icon-wrap bg-primary bg-opacity-10 text-primary mx-auto mb-3">
+              <i class="bi bi-shield-lock-fill"></i>
+            </div>
+            <h4 class="fw-bold mb-1">Login Administrator</h4>
+            <p class="text-muted small mb-4">Masuk untuk mengelola seluruh data kantor.</p>
+
+            <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+              <div class="mb-3 text-start">
+                <label class="form-label small fw-semibold">Username</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
+                  <input type="text" id="loginUsername" class="form-control" placeholder="Username admin..." required />
+                </div>
+              </div>
+              <div class="mb-4 text-start">
+                <label class="form-label small fw-semibold">Password</label>
+                <div class="input-group">
+                  <span class="input-group-text bg-white"><i class="bi bi-key"></i></span>
+                  <input type="password" id="loginPassword" class="form-control" placeholder="Password..." required />
+                </div>
+              </div>
+              <button type="submit" id="btnLoginSubmit" class="btn btn-primary w-100 py-2 fw-semibold">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Login
+              </button>
+            </form>
+            <div class="mt-3 text-center">
+              <small class="text-muted">Default login awal: <code>admin</code> / <code>admin123</code></small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 6. ADMIN DASHBOARD & MANAGEMENT (SIDEBAR LAYOUT) ==================== -->
+    <div id="view-admin" class="admin-layout" style="display: none;">
+      <!-- Sidebar -->
+      <aside class="admin-sidebar">
+        <div class="d-flex align-items-center gap-2 mb-4 px-2">
+          <i class="bi bi-person-circle fs-4 text-primary"></i>
+          <div>
+            <div class="fw-bold text-white small" id="sidebarAdminName">Administrator</div>
+            <div class="text-muted" style="font-size: 0.75rem;">Super Admin</div>
+          </div>
+        </div>
+        <ul class="nav flex-column admin-sidebar-nav">
+          <li class="nav-item">
+            <a class="nav-link active" id="admin-tab-dashboard" href="#" onclick="switchAdminTab('dashboard'); return false;">
+              <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="admin-tab-reg" href="#" onclick="switchAdminTab('reg'); return false;">
+              <i class="bi bi-file-earmark-text"></i> Peraturan
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="admin-tab-meeting" href="#" onclick="switchAdminTab('meeting'); return false;">
+              <i class="bi bi-calendar2-range"></i> Meeting Room
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="admin-tab-guest" href="#" onclick="switchAdminTab('guest'); return false;">
+              <i class="bi bi-people"></i> Guest Visit
+            </a>
+          </li>
+          <li class="nav-item mt-4 border-top pt-3 border-secondary">
+            <a class="nav-link text-danger" href="#" onclick="handleAdminLogout(); return false;">
+              <i class="bi bi-box-arrow-left"></i> Logout
+            </a>
+          </li>
+        </ul>
+      </aside>
+
+      <!-- Admin Main Content Area -->
+      <main class="admin-content">
+        <!-- Sub-View A: Dashboard Overview -->
+        <div id="admin-subview-dashboard">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h3 class="fw-bold mb-1">Dashboard Admin</h3>
+              <p class="text-muted small mb-0">Ringkasan statistik operasional kantor hari ini dan bulan ini.</p>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm" onclick="loadAdminDashboardStats()">
+              <i class="bi bi-arrow-clockwise"></i> Refresh Stats
+            </button>
+          </div>
+
+          <!-- 5 Stats Cards -->
+          <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl">
+              <div class="app-card h-100 p-3">
+                <div class="text-muted small fw-semibold">Total Peraturan</div>
+                <div class="fs-3 fw-bold text-dark mt-1" id="statTotalPeraturan">-</div>
+                <small class="text-muted"><i class="bi bi-file-earmark-check"></i> Dokumen aktif</small>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl">
+              <div class="app-card h-100 p-3 border-start border-primary border-3">
+                <div class="text-muted small fw-semibold">Meeting Hari Ini</div>
+                <div class="fs-3 fw-bold text-primary mt-1" id="statMeetingHariIni">-</div>
+                <small class="text-muted"><i class="bi bi-calendar-check"></i> Jadwal hari ini</small>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl">
+              <div class="app-card h-100 p-3 border-start border-success border-3">
+                <div class="text-muted small fw-semibold">Guest Hari Ini</div>
+                <div class="fs-3 fw-bold text-success mt-1" id="statGuestHariIni">-</div>
+                <small class="text-muted"><i class="bi bi-person-check"></i> Tamu berkunjung</small>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl">
+              <div class="app-card h-100 p-3">
+                <div class="text-muted small fw-semibold">Meeting Bulan Ini</div>
+                <div class="fs-3 fw-bold text-dark mt-1" id="statMeetingBulanIni">-</div>
+                <small class="text-muted"><i class="bi bi-calendar-month"></i> Akumulasi bulan ini</small>
+              </div>
+            </div>
+            <div class="col-sm-6 col-xl">
+              <div class="app-card h-100 p-3">
+                <div class="text-muted small fw-semibold">Guest Bulan Ini</div>
+                <div class="fs-3 fw-bold text-dark mt-1" id="statGuestBulanIni">-</div>
+                <small class="text-muted"><i class="bi bi-people-fill"></i> Akumulasi bulan ini</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aktivitas Terbaru -->
+          <div class="row g-4">
+            <div class="col-lg-6">
+              <div class="app-card p-0 overflow-hidden">
+                <div class="p-3 border-bottom fw-bold d-flex align-items-center justify-content-between">
+                  <span><i class="bi bi-calendar2-event me-2 text-primary"></i>Booking Meeting Terbaru</span>
+                  <a href="#" onclick="switchAdminTab('meeting'); return false;" class="small text-decoration-none">Lihat Semua</a>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-modern table-sm mb-0">
+                    <thead>
+                      <tr>
+                        <th>Tgl/Jam</th>
+                        <th>Ruang</th>
+                        <th>Agenda</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dashRecentBookingsBody">
+                      <tr><td colspan="4" class="text-center py-3 text-muted">Belum ada aktivitas.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="app-card p-0 overflow-hidden">
+                <div class="p-3 border-bottom fw-bold d-flex align-items-center justify-content-between">
+                  <span><i class="bi bi-person-lines-fill me-2 text-success"></i>Kunjungan Tamu Terbaru</span>
+                  <a href="#" onclick="switchAdminTab('guest'); return false;" class="small text-decoration-none">Lihat Semua</a>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-modern table-sm mb-0">
+                    <thead>
+                      <tr>
+                        <th>Foto</th>
+                        <th>Nama</th>
+                        <th>Tujuan</th>
+                        <th>Bertemu</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dashRecentGuestsBody">
+                      <tr><td colspan="4" class="text-center py-3 text-muted">Belum ada data tamu.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-View B: Admin Kelola Peraturan -->
+        <div id="admin-subview-reg" style="display: none;">
+          <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+            <div>
+              <h4 class="fw-bold mb-1">Kelola Peraturan & SOP</h4>
+              <p class="text-muted small mb-0">Tambah, perbarui, dan hapus peraturan kantor.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddRegModal()">
+              <i class="bi bi-plus-lg me-1"></i> Tambah Peraturan
+            </button>
+          </div>
+
+          <div class="app-card p-0 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover table-modern mb-0">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;">No</th>
+                    <th style="width: 120px;">Tanggal</th>
+                    <th>Judul</th>
+                    <th style="width: 110px;" class="text-center">PDF</th>
+                    <th style="width: 110px;" class="text-center">Gambar</th>
+                    <th style="width: 140px;" class="text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="adminRegTableBody">
+                  <tr><td colspan="6" class="text-center py-4 text-muted">Memuat data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-View C: Admin Kelola Meeting Room -->
+        <div id="admin-subview-meeting" style="display: none;">
+          <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+            <div>
+              <h4 class="fw-bold mb-1">Kelola Meeting Room</h4>
+              <p class="text-muted small mb-0">Atur approval status meeting (Menunggu, Disetujui, Ditolak, Selesai).</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddMeetingModal()">
+              <i class="bi bi-plus-lg me-1"></i> Tambah Jadwal
+            </button>
+          </div>
+
+          <div class="app-card p-0 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover table-modern mb-0">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Tanggal</th>
+                    <th>Jam</th>
+                    <th>Ruang</th>
+                    <th>Agenda</th>
+                    <th>Pihak Hadir</th>
+                    <th>Status</th>
+                    <th class="text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="adminMeetingTableBody">
+                  <tr><td colspan="8" class="text-center py-4 text-muted">Memuat data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-View D: Admin Kelola Guest Visit -->
+        <div id="admin-subview-guest" style="display: none;">
+          <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+            <div>
+              <h4 class="fw-bold mb-1">Kelola Guest Visit</h4>
+              <p class="text-muted small mb-0">Catat dan kelola tamu berkunjung dengan foto dari device atau kamera.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openAddGuestModal()">
+              <i class="bi bi-person-plus-fill me-1"></i> Tambah Tamu
+            </button>
+          </div>
+
+          <div class="app-card p-0 overflow-hidden">
+            <div class="table-responsive">
+              <table class="table table-hover table-modern mb-0">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th class="text-center">Foto</th>
+                    <th>Nama Tamu</th>
+                    <th>Tanggal</th>
+                    <th>Tujuan</th>
+                    <th>Bertemu Dengan</th>
+                    <th class="text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="adminGuestTableBody">
+                  <tr><td colspan="7" class="text-center py-4 text-muted">Memuat data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. Modal PDF Preview -->
+  <div class="modal fade" id="pdfPreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="pdfModalTitle">Preview Dokumen PDF</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-0" style="height: 75vh;">
+          <iframe id="pdfPreviewIframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+        <div class="modal-footer">
+          <a href="#" id="pdfDownloadBtn" target="_blank" class="btn btn-primary btn-sm">
+            <i class="bi bi-download me-1"></i> Download PDF
+          </a>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Modal Image Preview -->
+  <div class="modal fade" id="imagePreviewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="imageModalTitle">Preview Gambar</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body text-center p-3 bg-dark">
+          <img id="imagePreviewImg" src="" alt="Preview" class="img-fluid rounded" style="max-height: 70vh;" />
+        </div>
+        <div class="modal-footer">
+          <a href="#" id="imageDownloadBtn" target="_blank" class="btn btn-primary btn-sm">
+            <i class="bi bi-download me-1"></i> Download Gambar
+          </a>
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Modal Add/Edit Regulation -->
+  <div class="modal fade" id="regFormModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="regModalTitle">Tambah Peraturan & SOP</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="regForm" onsubmit="handleSaveRegulation(event)">
+            <input type="hidden" id="regFormId" />
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Tanggal Peraturan <span class="text-danger">*</span></label>
+              <input type="date" id="regFormDate" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Judul Peraturan <span class="text-danger">*</span></label>
+              <input type="text" id="regFormTitle" class="form-control" placeholder="Contoh: SOP Presensi & Jam Kerja 2026" required />
+            </div>
+
+            <!-- PDF Upload Options -->
+            <div class="mb-3 border p-2 rounded">
+              <label class="form-label small fw-semibold d-block mb-1">Dokumen PDF</label>
+              <ul class="nav nav-pills nav-fill mb-2" id="pills-pdf-tab">
+                <li class="nav-item">
+                  <button type="button" id="pdfTabBtnFile" class="nav-link active py-1 small" onclick="switchUploadMethod('pdf', 'file')">Upload Device</button>
+                </li>
+                <li class="nav-item">
+                  <button type="button" id="pdfTabBtnLink" class="nav-link py-1 small" onclick="switchUploadMethod('pdf', 'link')">Google Drive Link</button>
+                </li>
+              </ul>
+              <div id="pdfUploadFileBox">
+                <input type="file" id="regFormPdfFile" class="form-control form-control-sm" accept="application/pdf" />
+              </div>
+              <div id="pdfUploadLinkBox" style="display: none;">
+                <input type="url" id="regFormPdfLink" class="form-control form-control-sm" placeholder="https://drive.google.com/file/d/..." />
+              </div>
+              <div id="regPdfCurrentNotice" class="small text-muted mt-1" style="display: none;"></div>
+            </div>
+
+            <!-- Image Upload Options -->
+            <div class="mb-3 border p-2 rounded">
+              <label class="form-label small fw-semibold d-block mb-1">Gambar / Infografis</label>
+              <ul class="nav nav-pills nav-fill mb-2" id="pills-img-tab">
+                <li class="nav-item">
+                  <button type="button" id="imgTabBtnFile" class="nav-link active py-1 small" onclick="switchUploadMethod('img', 'file')">Upload Device</button>
+                </li>
+                <li class="nav-item">
+                  <button type="button" id="imgTabBtnLink" class="nav-link py-1 small" onclick="switchUploadMethod('img', 'link')">Google Drive Link</button>
+                </li>
+              </ul>
+              <div id="imgUploadFileBox">
+                <input type="file" id="regFormImgFile" class="form-control form-control-sm" accept="image/*" />
+              </div>
+              <div id="imgUploadLinkBox" style="display: none;">
+                <input type="url" id="regFormImgLink" class="form-control form-control-sm" placeholder="https://drive.google.com/file/d/..." />
+              </div>
+              <div id="regImgCurrentNotice" class="small text-muted mt-1" style="display: none;"></div>
+            </div>
+
+            <div class="modal-footer px-0 pb-0">
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+              <button type="submit" id="btnSaveReg" class="btn btn-primary btn-sm">Simpan Data</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Modal Add/Edit Meeting -->
+  <div class="modal fade" id="meetingFormModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="meetingModalTitle">Kelola Booking Meeting</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="meetingForm" onsubmit="handleSaveMeeting(event)">
+            <input type="hidden" id="meetingFormId" />
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Tanggal</label>
+              <input type="date" id="meetingFormDate" class="form-control" required />
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Jam Mulai</label>
+                <input type="time" id="meetingFormStartTime" class="form-control" required />
+              </div>
+              <div class="col-6">
+                <label class="form-label small fw-semibold">Jam Selesai</label>
+                <input type="time" id="meetingFormEndTime" class="form-control" required />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Ruang Meeting</label>
+              <select id="meetingFormRoom" class="form-select" required>
+                <option value="Ruang Meeting A">Ruang Meeting A</option>
+                <option value="Ruang Meeting B">Ruang Meeting B</option>
+                <option value="Ruang Meeting C">Ruang Meeting C</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Agenda</label>
+              <input type="text" id="meetingFormAgenda" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Pihak Hadir</label>
+              <textarea id="meetingFormAttendees" class="form-control" rows="2" required></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Status Approval</label>
+              <select id="meetingFormStatus" class="form-select">
+                <option value="Menunggu">Menunggu</option>
+                <option value="Disetujui">Disetujui</option>
+                <option value="Ditolak">Ditolak</option>
+                <option value="Selesai">Selesai</option>
+              </select>
+            </div>
+            <div class="modal-footer px-0 pb-0">
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+              <button type="submit" id="btnSaveMeeting" class="btn btn-primary btn-sm">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. Modal Add/Edit Guest Visit (Device Upload & Live Camera) -->
+  <div class="modal fade" id="guestFormModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fw-bold" id="guestModalTitle">Catat Kunjungan Tamu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="stopCameraStream()"></button>
+        </div>
+        <div class="modal-body">
+          <form id="guestForm" onsubmit="handleSaveGuest(event)">
+            <input type="hidden" id="guestFormId" />
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Nama Tamu <span class="text-danger">*</span></label>
+              <input type="text" id="guestFormName" class="form-control" placeholder="Nama lengkap tamu..." required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Tanggal Kunjungan <span class="text-danger">*</span></label>
+              <input type="date" id="guestFormDate" class="form-control" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Tujuan Kunjungan <span class="text-danger">*</span></label>
+              <input type="text" id="guestFormPurpose" class="form-control" placeholder="Keperluan / agenda kunjungan..." required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Bertemu Dengan <span class="text-danger">*</span></label>
+              <select id="guestFormMeetWith" class="form-select" required>
+                <option value="">-- Pilih Pegawai / Pejabat --</option>
+                <option value="Direktur Utama">Direktur Utama</option>
+                <option value="Manager HRD">Manager HRD</option>
+                <option value="Manager IT & Operasional">Manager IT & Operasional</option>
+                <option value="Manager Finance">Manager Finance</option>
+                <option value="Bagian Pengadaan / General Affair">Bagian Pengadaan / General Affair</option>
+                <option value="Karyawan Tertentu">Karyawan Tertentu</option>
+              </select>
+            </div>
+
+            <!-- Foto Tamu: Upload or Camera -->
+            <div class="mb-3 border p-2 rounded">
+              <label class="form-label small fw-semibold d-block mb-1">Foto Tamu</label>
+              <ul class="nav nav-pills nav-fill mb-2">
+                <li class="nav-item">
+                  <button type="button" class="nav-link active py-1 small" id="pill-photo-device" onclick="switchPhotoSource('device')">Upload File</button>
+                </li>
+                <li class="nav-item">
+                  <button type="button" class="nav-link py-1 small" id="pill-photo-camera" onclick="switchPhotoSource('camera')">Gunakan Kamera</button>
+                </li>
+              </ul>
+
+              <!-- Device File Input -->
+              <div id="photoDeviceBox">
+                <input type="file" id="guestPhotoFile" class="form-control form-control-sm" accept="image/*" onchange="previewGuestPhotoFile(event)" />
+                <div id="photoFilePreview" class="mt-2 text-center" style="display:none;">
+                  <img id="imgDevicePreview" src="" class="img-thumbnail" style="max-height: 120px;" />
+                </div>
+              </div>
+
+              <!-- Camera Live Stream Box -->
+              <div id="photoCameraBox" style="display: none;">
+                <div class="camera-box text-center">
+                  <video id="cameraVideo" autoplay playsinline></video>
+                  <canvas id="cameraCanvas"></canvas>
+                </div>
+                <div class="d-flex justify-content-center gap-2 mt-2">
+                  <button type="button" id="btnStartCamera" class="btn btn-sm btn-outline-primary" onclick="startCamera()">
+                    <i class="bi bi-camera-video"></i> Buka Kamera
+                  </button>
+                  <button type="button" id="btnCapturePhoto" class="btn btn-sm btn-primary" onclick="capturePhoto()" style="display: none;">
+                    <i class="bi bi-camera"></i> Ambil Foto
+                  </button>
+                  <button type="button" id="btnRetakePhoto" class="btn btn-sm btn-outline-secondary" onclick="retakePhoto()" style="display: none;">
+                    <i class="bi bi-arrow-repeat"></i> Retake
+                  </button>
+                </div>
+                <div id="cameraSnapshotPreview" class="mt-2 text-center" style="display: none;">
+                  <img id="imgCameraPreview" src="" class="img-thumbnail" style="max-height: 120px;" />
+                </div>
+              </div>
+            </div>
+
+            <div class="modal-footer px-0 pb-0">
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" onclick="stopCameraStream()">Batal</button>
+              <button type="submit" id="btnSaveGuest" class="btn btn-primary btn-sm">Simpan Tamu</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-body text-center p-4">
+          <i class="bi bi-exclamation-triangle text-danger display-5 mb-3 d-block"></i>
+          <h5 class="fw-bold mb-2">Konfirmasi Hapus</h5>
+          <p class="text-muted small mb-4" id="deleteConfirmMessage">Apakah Anda yakin ingin menghapus data ini?</p>
+          <div class="d-flex justify-content-center gap-2">
+            <button type="button" class="btn btn-light btn-sm px-3" data-bs-dismiss="modal">Batal</button>
+            <button type="button" id="btnConfirmDelete" class="btn btn-danger btn-sm px-3">Ya, Hapus</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Google Apps Script Settings & Troubleshooting Modal -->
+  <div class="modal fade" id="gasSettingsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-light py-2 px-3">
+          <h6 class="modal-title fw-bold text-dark d-flex align-items-center gap-2">
+            <i class="bi bi-gear-wide-connected text-primary"></i>
+            Koneksi Google Apps Script (GAS)
+          </h6>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-3">
+          <div class="alert alert-light border d-flex align-items-center gap-3 py-2 px-3 mb-3">
+            <div id="modalGasStatusIcon" class="fs-3 text-warning">
+              <i class="bi bi-hdd-network"></i>
+            </div>
+            <div>
+              <div class="fw-bold small" id="modalGasStatusTitle">Status: Mode Penyimpanan Lokal (Offline)</div>
+              <div class="text-muted small" id="modalGasStatusDesc" style="font-size: 0.8rem;">
+                Aplikasi sedang menggunakan memori lokal browser. Data dapat disimpan dan diuji langsung.
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-semibold">URL Web App Google Apps Script</label>
+            <div class="input-group input-group-sm">
+              <input type="text" id="inputGasUrl" class="form-control font-monospace" placeholder="https://script.google.com/macros/s/.../exec" />
+              <button class="btn btn-outline-primary" type="button" id="btnTestGas" onclick="testGasConnection()">
+                <i class="bi bi-broadcast me-1"></i> Uji Koneksi
+              </button>
+            </div>
+            <div class="form-text text-muted small" style="font-size: 0.76rem;">
+              Pastikan URL berakhiran <code>/exec</code> (bukan <code>/dev</code> atau link editor).
+            </div>
+          </div>
+
+          <!-- Alert Hasil Uji Koneksi -->
+          <div id="gasTestResultBox" style="display: none;" class="mb-3"></div>
+
+          <!-- Petunjuk Deployment -->
+          <div class="accordion accordion-flush border rounded-2" id="gasGuideAccordion">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingGuide">
+                <button class="accordion-button collapsed py-2 small fw-semibold text-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGuide">
+                  <i class="bi bi-question-circle me-2"></i> Petunjuk Cara Menghubungkan Google Apps Script (Bebas Error CORS)
+                </button>
+              </h2>
+              <div id="collapseGuide" class="accordion-collapse collapse" data-bs-parent="#gasGuideAccordion">
+                <div class="accordion-body small bg-light" style="font-size: 0.82rem; line-height: 1.6;">
+                  <ol class="ps-3 mb-0">
+                    <li>Buka <b>Google Sheets</b> &rarr; <b>Ekstensi</b> &rarr; <b>Apps Script</b> (atau buka <a href="https://script.google.com" target="_blank" class="text-primary">script.google.com</a>).</li>
+                    <li>Salin seluruh kode dari file <b><code>Code.gs</code></b> terbaru dan simpan di editor Apps Script.</li>
+                    <li><b>Penting:</b> Pada dropdown fungsi di atas, pilih fungsi <code>initDatabase</code> lalu klik tombol <b>Jalankan (Run)</b> sekali. Ikuti petunjuk untuk <b>Review Permissions</b> &rarr; <b>Advanced</b> &rarr; <b>Go to ... (unsafe)</b> &rarr; <b>Allow</b> untuk mengizinkan script mengakses Sheet & Drive Anda.</li>
+                    <li>Klik tombol <b>Terapkan (Deploy)</b> di kanan atas &rarr; <b>Kelola deployment (Manage deployments)</b> &rarr; klik ikon pensil (Edit) &rarr; pada Versi pilih <b>Versi baru (New version)</b>.</li>
+                    <li>Pastikan pengaturan:
+                      <ul>
+                        <li><b>Jalankan sebagai (Execute as):</b> Saya / Me (email Google Anda)</li>
+                        <li><b>Yang memiliki akses (Who has access):</b> Siapa saja / Anyone (Wajib agar tidak error CORS!)</li>
+                      </ul>
+                    </li>
+                    <li>Salin <b>URL Aplikasi Web</b> yang berakhiran <b><code>/exec</code></b>, tempelkan pada kolom di atas, lalu klik <b>Uji Koneksi</b> & <b>Simpan</b>.</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer py-2 px-3 bg-light d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary btn-sm" onclick="resetGasToLocal()">
+            <i class="bi bi-arrow-counterclockwise me-1"></i> Gunakan Mode Lokal
+          </button>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="saveGasUrlFromModal()">
+              <i class="bi bi-save me-1"></i> Simpan URL
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container-fixed">
+    <div id="appToast" class="toast align-items-center text-white border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body d-flex align-items-center gap-2">
+          <i id="toastIcon" class="bi bi-info-circle fs-5"></i>
+          <span id="toastMessage">Pesan sistem</span>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- ==================== FRONTEND JAVASCRIPT ==================== -->
+  <script>
+    // ======================================================
+    // GOOGLE APPS SCRIPT WEB APP URL
+    // Tempel URL Web App Anda di bawah ini, atau gunakan tombol
+    // status GAS di navbar untuk mengatur URL secara langsung di web.
+    // ======================================================
+    const API_URL = "TEMPEL_GOOGLE_APPS_SCRIPT_WEB_APP_URL_DI_SINI";
+
+    /**
+     * CONFIGURATION & STATE
+     */
+    function getApiUrl() {
+      // 1. Cek dari localStorage
+      let stored = localStorage.getItem("OMS_GAS_API_URL") || "";
+      if (stored && stored.trim().startsWith("http")) {
+        let clean = stored.trim();
+        if (clean.endsWith("/dev")) clean = clean.replace(/\/dev$/, "/exec");
+        return clean;
+      }
+      // 2. Cek dari konstanta API_URL jika diisi manual
+      if (typeof API_URL === "string" && API_URL.trim().startsWith("http") && API_URL.indexOf("TEMPEL_") === -1) {
+        let clean = API_URL.trim();
+        if (clean.endsWith("/dev")) clean = clean.replace(/\/dev$/, "/exec");
+        return clean;
+      }
+      return "";
+    }
+
+    let isGasOnline = false;
+
+    function updateGasStatusUI(online) {
+      isGasOnline = !!online;
+      const dot = document.getElementById("gasStatusDot");
+      const text = document.getElementById("gasStatusText");
+      const mIcon = document.getElementById("modalGasStatusIcon");
+      const mTitle = document.getElementById("modalGasStatusTitle");
+      const mDesc = document.getElementById("modalGasStatusDesc");
+      const activeUrl = getApiUrl();
+
+      if (!activeUrl) {
+        if (dot) { dot.className = "status-indicator bg-secondary"; dot.style.backgroundColor = "#94a3b8"; }
+        if (text) text.textContent = "GAS: Lokal";
+        if (mIcon) { mIcon.className = "fs-3 text-secondary"; mIcon.innerHTML = '<i class="bi bi-hdd"></i>'; }
+        if (mTitle) mTitle.textContent = "Status: Mode Penyimpanan Lokal (Offline)";
+        if (mDesc) mDesc.textContent = "Aplikasi sedang menggunakan memori lokal browser. Masukkan URL Web App untuk sinkronisasi ke Google Sheets.";
+      } else if (isGasOnline) {
+        if (dot) { dot.className = "status-indicator bg-success"; dot.style.backgroundColor = "#22c55e"; }
+        if (text) text.textContent = "GAS: Online";
+        if (mIcon) { mIcon.className = "fs-3 text-success"; mIcon.innerHTML = '<i class="bi bi-check-circle-fill"></i>'; }
+        if (mTitle) mTitle.textContent = "Status: Terhubung ke Google Apps Script (Live)";
+        if (mDesc) mDesc.textContent = "Semua data tersinkronisasi otomatis dengan Google Sheets & Drive.";
+      } else {
+        if (dot) { dot.className = "status-indicator bg-warning"; dot.style.backgroundColor = "#f59e0b"; }
+        if (text) text.textContent = "GAS: Periksa";
+        if (mIcon) { mIcon.className = "fs-3 text-warning"; mIcon.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i>'; }
+        if (mTitle) mTitle.textContent = "Status: Belum Terverifikasi / Perlu Izin";
+        if (mDesc) mDesc.textContent = "URL terpasang, namun akses belum terbuka atau butuh otorisasi (Deploy -> Anyone). Menggunakan respons lokal saat ini.";
+      }
+    }
+
+    async function testGasConnection(customUrl) {
+      const inputEl = document.getElementById("inputGasUrl");
+      let targetUrl = (customUrl || (inputEl ? inputEl.value : "") || getApiUrl()).trim();
+      const resBox = document.getElementById("gasTestResultBox");
+      const btnTest = document.getElementById("btnTestGas");
+
+      if (!targetUrl) {
+        if (resBox) {
+          resBox.className = "alert alert-warning small mb-0";
+          resBox.style.display = "block";
+          resBox.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i> Harap masukkan URL Web App Google Apps Script terlebih dahulu.';
+        }
+        return false;
+      }
+
+      if (targetUrl.endsWith("/dev")) {
+        targetUrl = targetUrl.replace(/\/dev$/, "/exec");
+        if (inputEl) inputEl.value = targetUrl;
+      }
+
+      if (btnTest) {
+        btnTest.disabled = true;
+        btnTest.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menguji...';
+      }
+      if (resBox) {
+        resBox.className = "alert alert-info small mb-0";
+        resBox.style.display = "block";
+        resBox.innerHTML = '<i class="bi bi-arrow-repeat me-1 spin"></i> Menguji koneksi ke Google Apps Script...';
+      }
+
+      try {
+        const pingUrl = targetUrl + (targetUrl.indexOf("?") > -1 ? "&" : "?") + "action=ping&_t=" + Date.now();
+        const resp = await fetch(pingUrl, {
+          method: "GET",
+          mode: "cors",
+          redirect: "follow"
+        });
+
+        if (!resp.ok) throw new Error("Status HTTP " + resp.status);
+        const data = await resp.json();
+
+        if (data && data.success) {
+          localStorage.setItem("OMS_GAS_API_URL", targetUrl);
+          updateGasStatusUI(true);
+          if (resBox) {
+            resBox.className = "alert alert-success small mb-0";
+            resBox.innerHTML = `
+              <div class="fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Berhasil Terhubung!</div>
+              <div>${escapeHtml(data.message || "Google Apps Script aktif dan dapat diakses.")}</div>
+            `;
+          }
+          showToast("Koneksi Google Apps Script berhasil tersambung!", "success");
+          return true;
+        } else {
+          throw new Error(data.message || "Respon dari script tidak valid.");
+        }
+      } catch (err) {
+        console.error("Test connection failed:", err);
+        updateGasStatusUI(false);
+        if (resBox) {
+          resBox.className = "alert alert-danger small mb-0";
+          resBox.innerHTML = `
+            <div class="fw-bold mb-1"><i class="bi bi-x-circle-fill me-1"></i> Gagal Terhubung (${escapeHtml(err.message)})</div>
+            <div class="small fw-semibold mt-1">Penyebab umum & solusi:</div>
+            <ol class="ps-3 mb-1 small text-start">
+              <li><b>Akses Belum Publik:</b> Buka Apps Script &rarr; <b>Deploy</b> &rarr; <b>Manage deployments</b> &rarr; Edit (pensil) &rarr; ubah <i>Who has access</i> menjadi <b>Anyone</b> (Siapa saja) &rarr; pilih <b>New version</b> &rarr; Deploy.</li>
+              <li><b>Belum Diizinkan:</b> Buka Apps Script &rarr; pilih fungsi <code>initDatabase</code> &rarr; klik <b>Run</b> &rarr; selesaikan <i>Review permissions</i>.</li>
+              <li><b>Salah URL:</b> Pastikan akhiran link adalah <code>/exec</code>, bukan <code>/dev</code> atau link editor Google Drive.</li>
+            </ol>
+          `;
+        }
+        return false;
+      } finally {
+        if (btnTest) {
+          btnTest.disabled = false;
+          btnTest.innerHTML = '<i class="bi bi-broadcast me-1"></i> Uji Koneksi';
+        }
+      }
+    }
+
+    function saveGasUrlFromModal() {
+      const input = document.getElementById("inputGasUrl");
+      let url = input ? input.value.trim() : "";
+      if (url.endsWith("/dev")) {
+        url = url.replace(/\/dev$/, "/exec");
+        if (input) input.value = url;
+      }
+      if (url) {
+        localStorage.setItem("OMS_GAS_API_URL", url);
+        showToast("URL Google Apps Script berhasil disimpan.", "success");
+        testGasConnection(url);
+      } else {
+        localStorage.removeItem("OMS_GAS_API_URL");
+        updateGasStatusUI(false);
+        showToast("Menggunakan mode lokal.", "info");
+      }
+      const modalEl = document.getElementById("gasSettingsModal");
+      if (modalEl) {
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+      }
+    }
+
+    function resetGasToLocal() {
+      localStorage.removeItem("OMS_GAS_API_URL");
+      const input = document.getElementById("inputGasUrl");
+      if (input) input.value = "";
+      const resBox = document.getElementById("gasTestResultBox");
+      if (resBox) resBox.style.display = "none";
+      updateGasStatusUI(false);
+      showToast("Kembali ke mode penyimpanan lokal browser.", "info");
+      const modalEl = document.getElementById("gasSettingsModal");
+      if (modalEl) {
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+      }
+    }
+
+    function openGasSettingsModal() {
+      const input = document.getElementById("inputGasUrl");
+      if (input) {
+        input.value = localStorage.getItem("OMS_GAS_API_URL") || (API_URL.indexOf("TEMPEL_") === -1 ? API_URL : "");
+      }
+      const resBox = document.getElementById("gasTestResultBox");
+      if (resBox) resBox.style.display = "none";
+      updateGasStatusUI(isGasOnline);
+      new bootstrap.Modal(document.getElementById("gasSettingsModal")).show();
+    }
+
+    async function checkInitialGasStatus() {
+      const url = getApiUrl();
+      if (!url) {
+        updateGasStatusUI(false);
+        return;
+      }
+      try {
+        const pingUrl = url + (url.indexOf("?") > -1 ? "&" : "?") + "action=ping&_t=" + Date.now();
+        const resp = await fetch(pingUrl, {
+          method: "GET",
+          mode: "cors",
+          redirect: "follow"
+        });
+        if (resp.ok) {
+          const data = await resp.json();
+          if (data && data.success) {
+            updateGasStatusUI(true);
+            return;
+          }
+        }
+        updateGasStatusUI(false);
+      } catch (e) {
+        updateGasStatusUI(false);
+      }
+    }
+
+    let currentAdminSession = JSON.parse(localStorage.getItem("OMS_ADMIN_SESSION") || "null");
+
+    // Local Fallback Storage for immediate rich interactivity prior to GAS deployment
+    const LOCAL_STORE = {
+      regulations: JSON.parse(localStorage.getItem("OMS_LOCAL_REG") || JSON.stringify([
+        {
+          id: "REG-000001",
+          tanggal: "2026-09-01",
+          judul: "Peraturan Disiplin Kerja & Presensi Karyawan 2026",
+          pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          pdfFileId: "",
+          imageUrl: "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=600&auto=format&fit=crop&q=80",
+          imageFileId: ""
+        },
+        {
+          id: "REG-000002",
+          tanggal: "2026-08-15",
+          judul: "SOP Penggunaan Fasilitas Kantor & Ruang Rapat",
+          pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          pdfFileId: "",
+          imageUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&auto=format&fit=crop&q=80",
+          imageFileId: ""
+        }
+      ])),
+      meetings: JSON.parse(localStorage.getItem("OMS_LOCAL_MEETING") || JSON.stringify([
+        {
+          id: "MR-000001",
+          tanggal: "2026-09-12",
+          jamMulai: "09:00",
+          jamSelesai: "10:30",
+          waktu: "09:00 - 10:30",
+          ruang: "Ruang Meeting A",
+          agenda: "Rapat Koordinasi Manajemen Bulanan",
+          pihakHadir: "Dewan Direksi & Head of Division",
+          status: "Disetujui"
+        },
+        {
+          id: "MR-000002",
+          tanggal: "2026-09-12",
+          jamMulai: "13:30",
+          jamSelesai: "15:00",
+          waktu: "13:30 - 15:00",
+          ruang: "Ruang Meeting B",
+          agenda: "Demo Produk & Evaluasi Tim IT",
+          pihakHadir: "Tim Developer & Produk",
+          status: "Menunggu"
+        }
+      ])),
+      guests: JSON.parse(localStorage.getItem("OMS_LOCAL_GUESTS") || JSON.stringify([
+        {
+          id: "GV-000001",
+          namaTamu: "Budi Santoso",
+          tanggalVisit: "2026-09-12",
+          tujuanVisit: "Presentasi Vendor Sistem Cloud",
+          fotoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+          fotoFileId: "",
+          bertemuDengan: "Manager IT & Operasional"
+        }
+      ]))
+    };
+
+    function saveLocalStore() {
+      localStorage.setItem("OMS_LOCAL_REG", JSON.stringify(LOCAL_STORE.regulations));
+      localStorage.setItem("OMS_LOCAL_MEETING", JSON.stringify(LOCAL_STORE.meetings));
+      localStorage.setItem("OMS_LOCAL_GUESTS", JSON.stringify(LOCAL_STORE.guests));
+    }
+
+    /**
+     * UNIFIED API CALL (Auto switches to live Google Apps Script if URL provided)
+     */
+    async function apiCall(action, payload = {}) {
+      const activeUrl = getApiUrl();
+      
+      if (activeUrl) {
+        // Read actions use GET with URL parameters for fast response and CORS stability
+        const readActions = [
+          "ping", "getPublicRegulations", "getRegulations",
+          "getPublicMeetingRooms", "getMeetingRooms",
+          "getPublicGuestVisits", "getGuestVisits", "getGuests",
+          "checkMeetingAvailability", "getDashboardStats"
+        ];
+        const isRead = readActions.includes(action);
+
+        try {
+          let response;
+          const token = currentAdminSession ? currentAdminSession.token : "";
+
+          if (isRead) {
+            const urlObj = new URL(activeUrl);
+            urlObj.searchParams.set("action", action);
+            if (token) urlObj.searchParams.set("token", token);
+            urlObj.searchParams.set("_t", Date.now().toString());
+
+            for (const [key, val] of Object.entries(payload)) {
+              if (val !== undefined && val !== null) {
+                if (typeof val === "object") {
+                  urlObj.searchParams.set(key, JSON.stringify(val));
+                } else {
+                  urlObj.searchParams.set(key, String(val));
+                }
+              }
+            }
+
+            response = await fetch(urlObj.toString(), {
+              method: "GET",
+              mode: "cors",
+              redirect: "follow"
+            });
+          } else {
+            // Write actions use POST text/plain
+            const reqBody = {
+              action: action,
+              token: token,
+              ...payload
+            };
+
+            response = await fetch(activeUrl, {
+              method: "POST",
+              mode: "cors",
+              redirect: "follow",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify(reqBody)
+            });
+          }
+
+          if (!response.ok) {
+            throw new Error("HTTP error " + response.status);
+          }
+
+          const result = await response.json();
+          updateGasStatusUI(true);
+          return result;
+        } catch (err) {
+          console.warn(`[GAS API] Request '${action}' belum terhubung, beralih ke penyimpanan lokal:`, err);
+          updateGasStatusUI(false);
+          // Hanya tampilkan toast peringatan jika aksi penulisan data gagal dikirim ke server
+          if (!isRead && action !== "ping") {
+            showToast("Koneksi Google Apps Script belum berhasil. Data tersimpan di browser secara lokal.", "warning");
+          }
+        }
+      }
+
+      // Local interactive mock execution
+      return executeLocalAction(action, payload);
+    }
+
+    function executeLocalAction(action, payload) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          switch (action) {
+            case "getPublicRegulations":
+            case "getRegulations":
+              resolve({ success: true, data: [...LOCAL_STORE.regulations] });
+              break;
+
+            case "addRegulation": {
+              const newId = "REG-" + String(LOCAL_STORE.regulations.length + 1).padStart(6, "0");
+              const item = { id: newId, ...payload.data };
+              LOCAL_STORE.regulations.unshift(item);
+              saveLocalStore();
+              resolve({ success: true, message: "Data berhasil disimpan.", data: { id: newId } });
+              break;
+            }
+
+            case "updateRegulation": {
+              const idx = LOCAL_STORE.regulations.findIndex(r => r.id === payload.id);
+              if (idx > -1) {
+                LOCAL_STORE.regulations[idx] = { ...LOCAL_STORE.regulations[idx], ...payload.data };
+                saveLocalStore();
+                resolve({ success: true, message: "Data berhasil disimpan." });
+              } else {
+                resolve({ success: false, message: "Data tidak ditemukan" });
+              }
+              break;
+            }
+
+            case "deleteRegulation":
+              LOCAL_STORE.regulations = LOCAL_STORE.regulations.filter(r => r.id !== payload.id);
+              saveLocalStore();
+              resolve({ success: true, message: "Data berhasil dihapus." });
+              break;
+
+            case "getPublicMeetingRooms":
+            case "getMeetingRooms":
+              resolve({ success: true, data: [...LOCAL_STORE.meetings] });
+              break;
+
+            case "checkMeetingAvailability": {
+              const overlap = checkLocalMeetingConflict(payload.tanggal, payload.ruang, payload.jamMulai, payload.jamSelesai, payload.excludeId);
+              if (overlap) {
+                resolve({ success: false, available: false, message: "Maaf, ruang meeting tersebut sudah digunakan pada waktu tersebut." });
+              } else {
+                resolve({ success: true, available: true, message: "Ruang tersedia." });
+              }
+              break;
+            }
+
+            case "addBooking": {
+              const conflict = checkLocalMeetingConflict(payload.data.tanggal, payload.data.ruang, payload.data.jamMulai, payload.data.jamSelesai);
+              if (conflict) {
+                resolve({ success: false, message: "Maaf, ruang meeting tersebut sudah digunakan pada waktu tersebut." });
+                return;
+              }
+              const newId = "MR-" + String(LOCAL_STORE.meetings.length + 1).padStart(6, "0");
+              const newMeeting = {
+                id: newId,
+                waktu: payload.data.jamMulai + " - " + payload.data.jamSelesai,
+                status: "Menunggu",
+                ...payload.data
+              };
+              LOCAL_STORE.meetings.unshift(newMeeting);
+              saveLocalStore();
+              resolve({ success: true, message: "Data berhasil disimpan. Permohonan booking Anda telah dicatat.", data: { id: newId } });
+              break;
+            }
+
+            case "addMeetingRoom": {
+              const conflict = checkLocalMeetingConflict(payload.data.tanggal, payload.data.ruang, payload.data.jamMulai, payload.data.jamSelesai);
+              if (conflict) {
+                resolve({ success: false, message: "Maaf, ruang meeting tersebut sudah digunakan pada waktu tersebut." });
+                return;
+              }
+              const newId = "MR-" + String(LOCAL_STORE.meetings.length + 1).padStart(6, "0");
+              LOCAL_STORE.meetings.unshift({ id: newId, waktu: payload.data.jamMulai + " - " + payload.data.jamSelesai, ...payload.data });
+              saveLocalStore();
+              resolve({ success: true, message: "Data berhasil disimpan." });
+              break;
+            }
+
+            case "updateMeetingRoom": {
+              const idx = LOCAL_STORE.meetings.findIndex(m => m.id === payload.id);
+              if (idx > -1) {
+                if (payload.data.status !== "Ditolak") {
+                  const conflict = checkLocalMeetingConflict(payload.data.tanggal, payload.data.ruang, payload.data.jamMulai, payload.data.jamSelesai, payload.id);
+                  if (conflict) {
+                    resolve({ success: false, message: "Maaf, ruang meeting tersebut sudah digunakan pada waktu tersebut." });
+                    return;
+                  }
+                }
+                LOCAL_STORE.meetings[idx] = {
+                  ...LOCAL_STORE.meetings[idx],
+                  ...payload.data,
+                  waktu: payload.data.jamMulai + " - " + payload.data.jamSelesai
+                };
+                saveLocalStore();
+                resolve({ success: true, message: "Data berhasil disimpan." });
+              } else {
+                resolve({ success: false, message: "Data tidak ditemukan" });
+              }
+              break;
+            }
+
+            case "deleteMeetingRoom":
+              LOCAL_STORE.meetings = LOCAL_STORE.meetings.filter(m => m.id !== payload.id);
+              saveLocalStore();
+              resolve({ success: true, message: "Data berhasil dihapus." });
+              break;
+
+            case "getPublicGuestVisits":
+            case "getGuestVisits":
+              resolve({ success: true, data: [...LOCAL_STORE.guests] });
+              break;
+
+            case "addGuestVisit": {
+              const newId = "GV-" + String(LOCAL_STORE.guests.length + 1).padStart(6, "0");
+              LOCAL_STORE.guests.unshift({ id: newId, ...payload.data });
+              saveLocalStore();
+              resolve({ success: true, message: "Data berhasil disimpan.", data: { id: newId } });
+              break;
+            }
+
+            case "updateGuestVisit": {
+              const idx = LOCAL_STORE.guests.findIndex(g => g.id === payload.id);
+              if (idx > -1) {
+                LOCAL_STORE.guests[idx] = { ...LOCAL_STORE.guests[idx], ...payload.data };
+                saveLocalStore();
+                resolve({ success: true, message: "Data berhasil disimpan." });
+              } else {
+                resolve({ success: false, message: "Data tamu tidak ditemukan" });
+              }
+              break;
+            }
+
+            case "deleteGuestVisit":
+              LOCAL_STORE.guests = LOCAL_STORE.guests.filter(g => g.id !== payload.id);
+              saveLocalStore();
+              resolve({ success: true, message: "Data berhasil dihapus." });
+              break;
+
+            case "loginAdmin":
+              if (payload.username === "admin" && (payload.password === "admin123" || payload.password === "admin")) {
+                const session = {
+                  token: "OMS_SEC_" + Math.random().toString(36).substring(2),
+                  user: { id: "ADM-000001", username: "admin", nama: "Administrator Kantor" }
+                };
+                resolve({ success: true, message: "Login berhasil. Selamat datang!", data: session });
+              } else {
+                resolve({ success: false, message: "Username atau password salah." });
+              }
+              break;
+
+            case "getDashboardStats": {
+              const todayStr = new Date().toISOString().substring(0, 10);
+              const curMonth = todayStr.substring(0, 7);
+              const mToday = LOCAL_STORE.meetings.filter(m => m.tanggal === todayStr).length;
+              const mMonth = LOCAL_STORE.meetings.filter(m => m.tanggal && m.tanggal.startsWith(curMonth)).length;
+              const gToday = LOCAL_STORE.guests.filter(g => g.tanggalVisit === todayStr).length;
+              const gMonth = LOCAL_STORE.guests.filter(g => g.tanggalVisit && g.tanggalVisit.startsWith(curMonth)).length;
+
+              resolve({
+                success: true,
+                data: {
+                  totalPeraturan: LOCAL_STORE.regulations.length,
+                  bookingHariIni: mToday,
+                  guestHariIni: gToday,
+                  bookingBulanIni: mMonth,
+                  guestBulanIni: gMonth,
+                  recentBookings: LOCAL_STORE.meetings.slice(0, 5),
+                  recentGuests: LOCAL_STORE.guests.slice(0, 5)
+                }
+              });
+              break;
+            }
+
+            case "uploadFile": {
+              const fileId = "FILE-" + Date.now();
+              resolve({
+                success: true,
+                message: "File berhasil diproses.",
+                fileId: fileId,
+                url: payload.base64Data,
+                previewUrl: payload.base64Data,
+                downloadUrl: payload.base64Data,
+                directImageUrl: payload.base64Data
+              });
+              break;
+            }
+
+            case "uploadGuestPhoto": {
+              const fileId = "FOTO-" + Date.now();
+              resolve({
+                success: true,
+                message: "Foto berhasil diproses.",
+                fileId: fileId,
+                url: payload.base64Data,
+                downloadUrl: payload.base64Data,
+                directImageUrl: payload.base64Data
+              });
+              break;
+            }
+
+            default:
+              resolve({ success: false, message: "Aksi tidak dikenal" });
+          }
+        }, 150);
+      });
+    }
+
+    function checkLocalMeetingConflict(tgl, ruang, start, end, excludeId) {
+      if (!tgl || !ruang || !start || !end) return false;
+      const sMin = timeToMinutes(start);
+      const eMin = timeToMinutes(end);
+      if (eMin <= sMin) return true;
+
+      for (let m of LOCAL_STORE.meetings) {
+        if (excludeId && m.id === excludeId) continue;
+        if (m.status === "Ditolak") continue;
+        if (m.tanggal === tgl && m.ruang === ruang) {
+          const existS = timeToMinutes(m.jamMulai);
+          const existE = timeToMinutes(m.jamSelesai);
+          // Overlap condition
+          if (sMin < existE && eMin > existS) {
+            return true;
+          }
+        }
+      }
+      return false;
+    }
+
+    function timeToMinutes(t) {
+      if (!t) return 0;
+      const [h, m] = t.split(":").map(Number);
+      return (h * 60) + (m || 0);
+    }
+
+    /**
+     * NAVIGATION ROUTER
+     */
+    function navigateTo(viewName) {
+      const views = ["home", "peraturan", "meeting", "guest", "login", "admin"];
+      views.forEach(v => {
+        const el = document.getElementById("view-" + v);
+        if (el) el.style.display = "none";
+        const navEl = document.getElementById("nav-" + v);
+        if (navEl) navEl.classList.remove("active");
+      });
+
+      const target = document.getElementById("view-" + viewName);
+      if (target) {
+        target.style.display = (viewName === "admin") ? "flex" : "block";
+      }
+
+      const activeNav = document.getElementById("nav-" + viewName);
+      if (activeNav) activeNav.classList.add("active");
+
+      // View-specific data initializations
+      if (viewName === "peraturan") loadPublicRegulations();
+      if (viewName === "meeting") {
+        document.getElementById("bookDate").value = new Date().toISOString().substring(0, 10);
+        loadPublicMeetings();
+      }
+      if (viewName === "guest") {
+        document.getElementById("gvFilterDate").value = new Date().toISOString().substring(0, 10);
+        loadPublicGuestVisits();
+      }
+      if (viewName === "admin") {
+        if (!currentAdminSession) {
+          navigateTo("login");
+          return;
+        }
+        loadAdminDashboardStats();
+      }
+
+      window.scrollTo(0, 0);
+    }
+
+    /**
+     * TOAST NOTIFICATION
+     */
+    function showToast(message, type = "success") {
+      const toastEl = document.getElementById("appToast");
+      const msgEl = document.getElementById("toastMessage");
+      const iconEl = document.getElementById("toastIcon");
+
+      msgEl.textContent = message;
+      toastEl.className = "toast align-items-center text-white border-0 shadow";
+      
+      if (type === "success") {
+        toastEl.classList.add("bg-success");
+        iconEl.className = "bi bi-check-circle-fill fs-5";
+      } else if (type === "error" || type === "danger") {
+        toastEl.classList.add("bg-danger");
+        iconEl.className = "bi bi-exclamation-octagon-fill fs-5";
+      } else if (type === "warning") {
+        toastEl.classList.add("bg-warning", "text-dark");
+        iconEl.className = "bi bi-exclamation-triangle-fill fs-5";
+      } else {
+        toastEl.classList.add("bg-primary");
+        iconEl.className = "bi bi-info-circle-fill fs-5";
+      }
+
+      const toast = new bootstrap.Toast(toastEl, { delay: 4000 });
+      toast.show();
+    }
+
+    /**
+     * ==================== FILE PREVIEW & DOWNLOAD HELPERS ====================
+     */
+    function getDriveFileId(url) {
+      if (!url || typeof url !== "string") return null;
+      const m1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (m1 && m1[1]) return m1[1];
+      const m2 = url.match(/id=([a-zA-Z0-9_-]+)/);
+      if (m2 && m2[1]) return m2[1];
+      const m3 = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      if (m3 && m3[1]) return m3[1];
+      return null;
+    }
+
+    function getPreviewUrl(url, type) {
+      if (!url) return "";
+      const driveId = getDriveFileId(url);
+      if (driveId) {
+        if (type === "pdf") {
+          return "https://drive.google.com/file/d/" + driveId + "/preview";
+        } else {
+          return "https://drive.google.com/uc?export=view&id=" + driveId;
+        }
+      }
+      return url;
+    }
+
+    function downloadMedia(url, title, type) {
+      if (!url) {
+        showToast("File tidak tersedia untuk diunduh.", "warning");
+        return;
+      }
+      const cleanTitle = (title || "berkas").replace(/[/\\?%*:|"<>]/g, "-").trim() || "berkas";
+      const ext = type === "pdf" ? ".pdf" : ".jpg";
+      const driveId = getDriveFileId(url);
+
+      if (driveId) {
+        const dlUrl = "https://drive.google.com/uc?export=download&id=" + driveId;
+        window.open(dlUrl, "_blank");
+        return;
+      }
+
+      if (url.startsWith("data:") || url.startsWith("blob:")) {
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = cleanTitle.endsWith(ext) ? cleanTitle : (cleanTitle + ext);
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          if (document.body.contains(a)) document.body.removeChild(a);
+        }, 300);
+        return;
+      }
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.download = cleanTitle.endsWith(ext) ? cleanTitle : (cleanTitle + ext);
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        if (document.body.contains(a)) document.body.removeChild(a);
+      }, 300);
+    }
+
+    function previewPdf(url, title) {
+      document.getElementById("pdfModalTitle").textContent = title || "Preview Dokumen PDF";
+      const iframe = document.getElementById("pdfPreviewIframe");
+      iframe.src = getPreviewUrl(url, "pdf");
+
+      const dlBtn = document.getElementById("pdfDownloadBtn");
+      dlBtn.onclick = function(e) {
+        e.preventDefault();
+        downloadMedia(url, title, "pdf");
+      };
+
+      new bootstrap.Modal(document.getElementById("pdfPreviewModal")).show();
+    }
+
+    function previewImage(url, title) {
+      document.getElementById("imageModalTitle").textContent = title || "Preview Gambar";
+      const img = document.getElementById("imagePreviewImg");
+      img.src = getPreviewUrl(url, "image");
+
+      const dlBtn = document.getElementById("imageDownloadBtn");
+      dlBtn.onclick = function(e) {
+        e.preventDefault();
+        downloadMedia(url, title, "image");
+      };
+
+      new bootstrap.Modal(document.getElementById("imagePreviewModal")).show();
+    }
+
+    /**
+     * ==================== PERATURAN & SOP LOGIC ====================
+     */
+    let rawRegulations = [];
+    let currentFilteredRegulations = [];
+
+    async function loadPublicRegulations() {
+      const tbody = document.getElementById("publicRegTableBody");
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div> Memuat data...</td></tr>`;
+
+      try {
+        const res = await apiCall("getPublicRegulations");
+        if (res.success && res.data) {
+          rawRegulations = res.data;
+          renderRegulationsTable(rawRegulations);
+        } else {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada peraturan yang tersedia.</td></tr>`;
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Data sementara tidak dapat dimuat. Silakan coba lagi.</td></tr>`;
+      }
+    }
+
+    function previewPdfPublic(idx) {
+      const item = currentFilteredRegulations[idx];
+      if (item && item.pdfUrl) previewPdf(item.pdfUrl, item.judul);
+    }
+
+    function downloadPdfPublic(idx) {
+      const item = currentFilteredRegulations[idx];
+      if (item && item.pdfUrl) downloadMedia(item.pdfUrl, item.judul, "pdf");
+    }
+
+    function previewImagePublic(idx) {
+      const item = currentFilteredRegulations[idx];
+      if (item && item.imageUrl) previewImage(item.imageUrl, item.judul);
+    }
+
+    function downloadImagePublic(idx) {
+      const item = currentFilteredRegulations[idx];
+      if (item && item.imageUrl) downloadMedia(item.imageUrl, item.judul, "image");
+    }
+
+    function renderRegulationsTable(list) {
+      currentFilteredRegulations = list || [];
+      const tbody = document.getElementById("publicRegTableBody");
+      const countLabel = document.getElementById("regCountLabel");
+      
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada peraturan yang tersedia.</td></tr>`;
+        if (countLabel) countLabel.textContent = "Menampilkan 0 data";
+        return;
+      }
+
+      if (countLabel) countLabel.textContent = `Menampilkan ${list.length} peraturan`;
+
+      tbody.innerHTML = list.map((item, i) => {
+        const hasPdf = Boolean(item.pdfUrl && String(item.pdfUrl).trim());
+        const hasImg = Boolean(item.imageUrl && String(item.imageUrl).trim());
+        return `
+        <tr>
+          <td>${i + 1}</td>
+          <td><span class="badge bg-light text-dark border">${item.tanggal || "-"}</span></td>
+          <td class="fw-semibold">${escapeHtml(item.judul)}</td>
+          <td class="text-center">
+            ${hasPdf ? `
+              <div class="d-inline-flex gap-1 align-items-center justify-content-center">
+                <button class="btn btn-outline-primary btn-sm py-0 px-2" title="Preview PDF" onclick="previewPdfPublic(${i})">
+                  <i class="bi bi-filetype-pdf"></i> PDF
+                </button>
+                <button class="btn btn-light btn-sm py-0 px-2 border" title="Download PDF" onclick="downloadPdfPublic(${i})">
+                  <i class="bi bi-download text-primary"></i>
+                </button>
+              </div>
+            ` : `<span class="text-muted small">-</span>`}
+          </td>
+          <td class="text-center">
+            ${hasImg ? `
+              <div class="d-inline-flex gap-1 align-items-center justify-content-center">
+                <button class="btn btn-outline-info btn-sm py-0 px-2" title="Preview Gambar" onclick="previewImagePublic(${i})">
+                  <i class="bi bi-image"></i> Gambar
+                </button>
+                <button class="btn btn-light btn-sm py-0 px-2 border" title="Download Gambar" onclick="downloadImagePublic(${i})">
+                  <i class="bi bi-download text-info"></i>
+                </button>
+              </div>
+            ` : `<span class="text-muted small">-</span>`}
+          </td>
+          <td class="text-center">
+            <div class="btn-group btn-group-sm">
+              ${hasPdf ? `
+                <button class="btn btn-outline-primary btn-sm" title="Download PDF" onclick="downloadPdfPublic(${i})">
+                  <i class="bi bi-file-earmark-arrow-down"></i> PDF
+                </button>
+              ` : ''}
+              ${hasImg ? `
+                <button class="btn btn-outline-info btn-sm" title="Download Gambar" onclick="downloadImagePublic(${i})">
+                  <i class="bi bi-image"></i> Gambar
+                </button>
+              ` : ''}
+              ${!hasPdf && !hasImg ? `<span class="text-muted small">-</span>` : ''}
+            </div>
+          </td>
+        </tr>
+      `;
+      }).join("");
+    }
+
+    function filterRegulationsTable() {
+      const query = (document.getElementById("regSearchInput").value || "").toLowerCase();
+      const date = document.getElementById("regDateFilter").value;
+
+      const filtered = rawRegulations.filter(r => {
+        const matchTitle = !query || (r.judul && r.judul.toLowerCase().includes(query));
+        const matchDate = !date || r.tanggal === date;
+        return matchTitle && matchDate;
+      });
+
+      renderRegulationsTable(filtered);
+    }
+
+    /**
+     * ==================== MEETING ROOM LOGIC ====================
+     */
+    let rawMeetings = [];
+
+    async function loadPublicMeetings() {
+      const tbody = document.getElementById("publicMeetingTableBody");
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div> Memuat data...</td></tr>`;
+
+      try {
+        const res = await apiCall("getPublicMeetingRooms");
+        if (res.success && res.data) {
+          rawMeetings = res.data;
+          renderMeetingTable(rawMeetings);
+        } else {
+          tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">Belum ada booking meeting.</td></tr>`;
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Data sementara tidak dapat dimuat. Silakan coba lagi.</td></tr>`;
+      }
+    }
+
+    function renderMeetingTable(list) {
+      const tbody = document.getElementById("publicMeetingTableBody");
+      const countLabel = document.getElementById("mrCountLabel");
+
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">Belum ada booking meeting.</td></tr>`;
+        if (countLabel) countLabel.textContent = "Menampilkan 0 data";
+        return;
+      }
+
+      if (countLabel) countLabel.textContent = `Menampilkan ${list.length} jadwal meeting`;
+
+      tbody.innerHTML = list.map((m, i) => {
+        let badgeClass = "bg-secondary";
+        if (m.status === "Disetujui") badgeClass = "bg-success";
+        else if (m.status === "Menunggu") badgeClass = "bg-warning text-dark";
+        else if (m.status === "Ditolak") badgeClass = "bg-danger";
+        else if (m.status === "Selesai") badgeClass = "bg-info text-dark";
+
+        return `
+          <tr>
+            <td>${i + 1}</td>
+            <td><span class="badge bg-light text-dark border">${m.tanggal}</span></td>
+            <td class="fw-semibold text-primary">${m.waktu || (m.jamMulai + " - " + m.jamSelesai)}</td>
+            <td><span class="badge bg-dark">${escapeHtml(m.ruang)}</span></td>
+            <td>${escapeHtml(m.agenda)}</td>
+            <td><small class="text-muted">${escapeHtml(m.pihakHadir)}</small></td>
+            <td><span class="badge ${badgeClass} badge-status">${m.status || "Menunggu"}</span></td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function filterMeetingTable() {
+      const date = document.getElementById("mrFilterDate").value;
+      const room = document.getElementById("mrFilterRoom").value;
+
+      const filtered = rawMeetings.filter(m => {
+        const matchDate = !date || m.tanggal === date;
+        const matchRoom = !room || m.ruang === room;
+        return matchDate && matchRoom;
+      });
+
+      renderMeetingTable(filtered);
+    }
+
+    async function handlePublicBooking(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btnSubmitBooking");
+
+      const tanggal = document.getElementById("bookDate").value;
+      const jamMulai = document.getElementById("bookStartTime").value;
+      const jamSelesai = document.getElementById("bookEndTime").value;
+      const ruang = document.getElementById("bookRoom").value;
+      const agenda = document.getElementById("bookAgenda").value;
+      const pihakHadir = document.getElementById("bookAttendees").value;
+
+      // Client time validation
+      if (timeToMinutes(jamSelesai) <= timeToMinutes(jamMulai)) {
+        showToast("Jam selesai tidak boleh lebih kecil dari jam mulai.", "warning");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Mengecek ketersediaan & menyimpan...`;
+
+      try {
+        const payload = {
+          data: { tanggal, jamMulai, jamSelesai, ruang, agenda, pihakHadir }
+        };
+
+        const res = await apiCall("addBooking", payload);
+        if (res.success) {
+          showToast(res.message || "Data berhasil disimpan.", "success");
+          document.getElementById("publicBookingForm").reset();
+          document.getElementById("bookDate").value = new Date().toISOString().substring(0, 10);
+          loadPublicMeetings();
+        } else {
+          // Bentrok validation message
+          showToast(res.message || "Maaf, ruang meeting tersebut sudah digunakan pada waktu tersebut.", "error");
+        }
+      } catch (err) {
+        showToast("Terjadi kesalahan. Silakan coba lagi.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="bi bi-send-check me-1"></i> Kirim Permohonan Booking`;
+      }
+    }
+
+    /**
+     * ==================== GUEST VISIT LOGIC ====================
+     */
+    let rawGuests = [];
+
+    async function loadPublicGuestVisits() {
+      const tbody = document.getElementById("publicGuestTableBody");
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm text-primary me-2"></div> Memuat data...</td></tr>`;
+
+      try {
+        const filterDate = document.getElementById("gvFilterDate").value;
+        const res = await apiCall("getPublicGuestVisits", { date: filterDate });
+        if (res.success && res.data) {
+          rawGuests = res.data;
+          renderGuestTable(rawGuests);
+        } else {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada data kunjungan.</td></tr>`;
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Data sementara tidak dapat dimuat. Silakan coba lagi.</td></tr>`;
+      }
+    }
+
+    function renderGuestTable(list) {
+      const tbody = document.getElementById("publicGuestTableBody");
+      const countLabel = document.getElementById("gvCountLabel");
+
+      if (!list || list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada data kunjungan.</td></tr>`;
+        if (countLabel) countLabel.textContent = "Menampilkan 0 data";
+        return;
+      }
+
+      if (countLabel) countLabel.textContent = `Menampilkan ${list.length} kunjungan tamu`;
+
+      tbody.innerHTML = list.map((g, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td class="text-center">
+            ${g.fotoUrl ? `<img src="${escapeHtml(g.fotoUrl)}" alt="Tamu" class="guest-thumb" onclick="previewImage('${escapeHtml(g.fotoUrl)}', 'Foto: ${escapeHtml(g.namaTamu)}')" />` : `<div class="bg-light rounded p-2 text-muted text-center" style="width:48px;height:48px;display:inline-flex;align-items:center;justify-content:center;"><i class="bi bi-person"></i></div>`}
+          </td>
+          <td class="fw-bold">${escapeHtml(g.namaTamu)}</td>
+          <td><span class="badge bg-light text-dark border">${g.tanggalVisit}</span></td>
+          <td>${escapeHtml(g.tujuanVisit)}</td>
+          <td><span class="badge bg-primary bg-opacity-10 text-primary">${escapeHtml(g.bertemuDengan)}</span></td>
+        </tr>
+      `).join("");
+    }
+
+    function filterGuestTable() {
+      const date = document.getElementById("gvFilterDate").value;
+      const query = (document.getElementById("gvSearchInput").value || "").toLowerCase();
+
+      const filtered = rawGuests.filter(g => {
+        const matchDate = !date || g.tanggalVisit === date;
+        const matchSearch = !query || 
+          (g.namaTamu && g.namaTamu.toLowerCase().includes(query)) ||
+          (g.tujuanVisit && g.tujuanVisit.toLowerCase().includes(query)) ||
+          (g.bertemuDengan && g.bertemuDengan.toLowerCase().includes(query));
+        return matchDate && matchSearch;
+      });
+
+      renderGuestTable(filtered);
+    }
+
+    /**
+     * ==================== CAMERA & GUEST FORM LOGIC ====================
+     */
+    let mediaStream = null;
+    let capturedPhotoBase64 = "";
+
+    function switchPhotoSource(source) {
+      document.getElementById("pill-photo-device").classList.toggle("active", source === "device");
+      document.getElementById("pill-photo-camera").classList.toggle("active", source === "camera");
+
+      document.getElementById("photoDeviceBox").style.display = (source === "device") ? "block" : "none";
+      document.getElementById("photoCameraBox").style.display = (source === "camera") ? "block" : "none";
+
+      if (source !== "camera") {
+        stopCameraStream();
+      }
+    }
+
+    async function startCamera() {
+      const video = document.getElementById("cameraVideo");
+      const btnStart = document.getElementById("btnStartCamera");
+      const btnCapture = document.getElementById("btnCapturePhoto");
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showToast("Browser tidak mendukung akses kamera. Silakan upload foto dari device.", "warning");
+          switchPhotoSource("device");
+          return;
+        }
+
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }
+        });
+        video.srcObject = mediaStream;
+        video.style.display = "block";
+        btnStart.style.display = "none";
+        btnCapture.style.display = "inline-block";
+        document.getElementById("btnRetakePhoto").style.display = "none";
+        document.getElementById("cameraSnapshotPreview").style.display = "none";
+      } catch (err) {
+        console.error("Camera access error:", err);
+        showToast("Gagal mengakses kamera. Pastikan izin kamera telah diberikan.", "error");
+        switchPhotoSource("device");
+      }
+    }
+
+    function capturePhoto() {
+      const video = document.getElementById("cameraVideo");
+      const canvas = document.getElementById("cameraCanvas");
+      const imgPreview = document.getElementById("imgCameraPreview");
+
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      capturedPhotoBase64 = canvas.toDataURL("image/jpeg", 0.85);
+      imgPreview.src = capturedPhotoBase64;
+
+      document.getElementById("cameraSnapshotPreview").style.display = "block";
+      document.getElementById("btnCapturePhoto").style.display = "none";
+      document.getElementById("btnRetakePhoto").style.display = "inline-block";
+      video.style.display = "none";
+
+      stopCameraStream();
+    }
+
+    function retakePhoto() {
+      capturedPhotoBase64 = "";
+      document.getElementById("cameraSnapshotPreview").style.display = "none";
+      document.getElementById("btnRetakePhoto").style.display = "none";
+      startCamera();
+    }
+
+    function stopCameraStream() {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+        mediaStream = null;
+      }
+    }
+
+    function previewGuestPhotoFile(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          capturedPhotoBase64 = evt.target.result;
+          document.getElementById("imgDevicePreview").src = capturedPhotoBase64;
+          document.getElementById("photoFilePreview").style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    /**
+     * ==================== ADMIN AUTHENTICATION ====================
+     */
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btnLoginSubmit");
+      const u = document.getElementById("loginUsername").value;
+      const p = document.getElementById("loginPassword").value;
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Memverifikasi...`;
+
+      try {
+        const res = await apiCall("loginAdmin", { username: u, password: p });
+        if (res.success && res.data) {
+          currentAdminSession = res.data;
+          localStorage.setItem("OMS_ADMIN_SESSION", JSON.stringify(currentAdminSession));
+          updateAuthUI();
+          showToast(res.message || "Login berhasil", "success");
+          navigateTo("admin");
+        } else {
+          showToast(res.message || "Username atau password salah.", "error");
+        }
+      } catch (err) {
+        showToast("Terjadi kesalahan server saat login.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="bi bi-box-arrow-in-right me-1"></i> Login`;
+      }
+    }
+
+    function handleAdminLogout() {
+      currentAdminSession = null;
+      localStorage.removeItem("OMS_ADMIN_SESSION");
+      updateAuthUI();
+      showToast("Anda telah logout dari sistem admin.", "info");
+      navigateTo("home");
+    }
+
+    function updateAuthUI() {
+      const btnWrap = document.getElementById("authNavButtons");
+      const adminNameEl = document.getElementById("sidebarAdminName");
+
+      if (currentAdminSession && currentAdminSession.user) {
+        btnWrap.innerHTML = `
+          <button class="btn btn-primary btn-sm d-flex align-items-center gap-1" onclick="navigateTo('admin')">
+            <i class="bi bi-speedometer2"></i> Dashboard Admin
+          </button>
+        `;
+        if (adminNameEl) adminNameEl.textContent = currentAdminSession.user.nama || "Administrator";
+      } else {
+        btnWrap.innerHTML = `
+          <button class="btn btn-login-nav d-flex align-items-center gap-1" onclick="navigateTo('login')">
+            <i class="bi bi-box-arrow-in-right"></i> Login Admin
+          </button>
+        `;
+      }
+    }
+
+    /**
+     * ==================== ADMIN DASHBOARD & SUBVIEWS ====================
+     */
+    function switchAdminTab(tabName) {
+      const tabs = ["dashboard", "reg", "meeting", "guest"];
+      tabs.forEach(t => {
+        const view = document.getElementById("admin-subview-" + t);
+        const link = document.getElementById("admin-tab-" + t);
+        if (view) view.style.display = "none";
+        if (link) link.classList.remove("active");
+      });
+
+      const target = document.getElementById("admin-subview-" + tabName);
+      const targetLink = document.getElementById("admin-tab-" + tabName);
+      if (target) target.style.display = "block";
+      if (targetLink) targetLink.classList.add("active");
+
+      if (tabName === "dashboard") loadAdminDashboardStats();
+      if (tabName === "reg") loadAdminRegulations();
+      if (tabName === "meeting") loadAdminMeetings();
+      if (tabName === "guest") loadAdminGuests();
+    }
+
+    async function loadAdminDashboardStats() {
+      try {
+        const res = await apiCall("getDashboardStats");
+        if (res.success && res.data) {
+          const d = res.data;
+          document.getElementById("statTotalPeraturan").textContent = d.totalPeraturan || 0;
+          document.getElementById("statMeetingHariIni").textContent = d.bookingHariIni || 0;
+          document.getElementById("statGuestHariIni").textContent = d.guestHariIni || 0;
+          document.getElementById("statMeetingBulanIni").textContent = d.bookingBulanIni || 0;
+          document.getElementById("statGuestBulanIni").textContent = d.guestBulanIni || 0;
+
+          // Render Recent Bookings
+          const bBody = document.getElementById("dashRecentBookingsBody");
+          if (d.recentBookings && d.recentBookings.length > 0) {
+            bBody.innerHTML = d.recentBookings.map(b => `
+              <tr>
+                <td><small>${b.tanggal} ${b.jam || b.waktu || ''}</small></td>
+                <td><span class="badge bg-light text-dark border">${escapeHtml(b.ruang)}</span></td>
+                <td>${escapeHtml(b.agenda)}</td>
+                <td><span class="badge bg-secondary badge-status">${b.status}</span></td>
+              </tr>
+            `).join("");
+          } else {
+            bBody.innerHTML = `<tr><td colspan="4" class="text-center py-3 text-muted">Belum ada booking meeting.</td></tr>`;
+          }
+
+          // Render Recent Guests
+          const gBody = document.getElementById("dashRecentGuestsBody");
+          if (d.recentGuests && d.recentGuests.length > 0) {
+            gBody.innerHTML = d.recentGuests.map(g => `
+              <tr>
+                <td>${g.fotoUrl ? `<img src="${escapeHtml(g.fotoUrl)}" class="guest-thumb" style="width:32px;height:32px;" />` : `<i class="bi bi-person"></i>`}</td>
+                <td class="fw-bold">${escapeHtml(g.namaTamu || g.nama)}</td>
+                <td>${escapeHtml(g.tujuanVisit || g.tujuan)}</td>
+                <td><small class="text-muted">${escapeHtml(g.bertemuDengan || g.bertemu)}</small></td>
+              </tr>
+            `).join("");
+          } else {
+            gBody.innerHTML = `<tr><td colspan="4" class="text-center py-3 text-muted">Belum ada data kunjungan.</td></tr>`;
+          }
+        }
+      } catch (e) {
+        console.error("Dashboard stats error", e);
+      }
+    }
+
+    /**
+     * ==================== ADMIN CRUD: PERATURAN ====================
+     */
+    let currentAdminRegulations = [];
+
+    function previewPdfAdmin(idx) {
+      const item = currentAdminRegulations[idx];
+      if (item && item.pdfUrl) previewPdf(item.pdfUrl, item.judul);
+    }
+
+    function downloadPdfAdmin(idx) {
+      const item = currentAdminRegulations[idx];
+      if (item && item.pdfUrl) downloadMedia(item.pdfUrl, item.judul, "pdf");
+    }
+
+    function previewImageAdmin(idx) {
+      const item = currentAdminRegulations[idx];
+      if (item && item.imageUrl) previewImage(item.imageUrl, item.judul);
+    }
+
+    function downloadImageAdmin(idx) {
+      const item = currentAdminRegulations[idx];
+      if (item && item.imageUrl) downloadMedia(item.imageUrl, item.judul, "image");
+    }
+
+    function editRegAdmin(idx) {
+      const item = currentAdminRegulations[idx];
+      if (item) openEditRegModal(item);
+    }
+
+    async function loadAdminRegulations() {
+      const tbody = document.getElementById("adminRegTableBody");
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Memuat data...</td></tr>`;
+
+      try {
+        const res = await apiCall("getRegulations");
+        if (res.success && res.data) {
+          currentAdminRegulations = res.data;
+          if (res.data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada peraturan yang tersedia.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = res.data.map((r, i) => {
+            const hasPdf = Boolean(r.pdfUrl && String(r.pdfUrl).trim());
+            const hasImg = Boolean(r.imageUrl && String(r.imageUrl).trim());
+            return `
+            <tr>
+              <td>${i + 1}</td>
+              <td><span class="badge bg-light text-dark border">${r.tanggal || "-"}</span></td>
+              <td class="fw-bold">${escapeHtml(r.judul)}</td>
+              <td class="text-center">
+                ${hasPdf ? `
+                  <div class="d-inline-flex gap-1 align-items-center justify-content-center">
+                    <button class="btn btn-sm btn-outline-primary py-0 px-2" title="Preview PDF" onclick="previewPdfAdmin(${i})"><i class="bi bi-filetype-pdf"></i> PDF</button>
+                    <button class="btn btn-sm btn-light py-0 px-2 border" title="Download PDF" onclick="downloadPdfAdmin(${i})"><i class="bi bi-download text-primary"></i></button>
+                  </div>
+                ` : '<span class="text-muted small">-</span>'}
+              </td>
+              <td class="text-center">
+                ${hasImg ? `
+                  <div class="d-inline-flex gap-1 align-items-center justify-content-center">
+                    <button class="btn btn-sm btn-outline-info py-0 px-2" title="Preview Gambar" onclick="previewImageAdmin(${i})"><i class="bi bi-image"></i> Gambar</button>
+                    <button class="btn btn-sm btn-light py-0 px-2 border" title="Download Gambar" onclick="downloadImageAdmin(${i})"><i class="bi bi-download text-info"></i></button>
+                  </div>
+                ` : '<span class="text-muted small">-</span>'}
+              </td>
+              <td class="text-center">
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-secondary" title="Edit" onclick="editRegAdmin(${i})"><i class="bi bi-pencil"></i></button>
+                  <button class="btn btn-outline-danger" title="Hapus" onclick="confirmDelete('reg', '${r.id}')"><i class="bi bi-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          `;
+          }).join("");
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Gagal memuat peraturan.</td></tr>`;
+      }
+    }
+
+    function switchUploadMethod(type, mode) {
+      if (type === "pdf") {
+        document.getElementById("pdfUploadFileBox").style.display = (mode === "file") ? "block" : "none";
+        document.getElementById("pdfUploadLinkBox").style.display = (mode === "link") ? "block" : "none";
+        const btnFile = document.getElementById("pdfTabBtnFile");
+        const btnLink = document.getElementById("pdfTabBtnLink");
+        if (btnFile) btnFile.classList.toggle("active", mode === "file");
+        if (btnLink) btnLink.classList.toggle("active", mode === "link");
+      } else {
+        document.getElementById("imgUploadFileBox").style.display = (mode === "file") ? "block" : "none";
+        document.getElementById("imgUploadLinkBox").style.display = (mode === "link") ? "block" : "none";
+        const btnFile = document.getElementById("imgTabBtnFile");
+        const btnLink = document.getElementById("imgTabBtnLink");
+        if (btnFile) btnFile.classList.toggle("active", mode === "file");
+        if (btnLink) btnLink.classList.toggle("active", mode === "link");
+      }
+    }
+
+    let editingRegOriginal = null;
+
+    function openAddRegModal() {
+      editingRegOriginal = null;
+      document.getElementById("regForm").reset();
+      document.getElementById("regFormId").value = "";
+      document.getElementById("regFormDate").value = new Date().toISOString().substring(0, 10);
+      document.getElementById("regFormPdfLink").value = "";
+      document.getElementById("regFormImgLink").value = "";
+      document.getElementById("regFormPdfFile").value = "";
+      document.getElementById("regFormImgFile").value = "";
+
+      const pdfNotice = document.getElementById("regPdfCurrentNotice");
+      const imgNotice = document.getElementById("regImgCurrentNotice");
+      if (pdfNotice) { pdfNotice.style.display = "none"; pdfNotice.innerHTML = ""; }
+      if (imgNotice) { imgNotice.style.display = "none"; imgNotice.innerHTML = ""; }
+
+      switchUploadMethod('pdf', 'file');
+      switchUploadMethod('img', 'file');
+
+      document.getElementById("regModalTitle").textContent = "Tambah Peraturan & SOP";
+      new bootstrap.Modal(document.getElementById("regFormModal")).show();
+    }
+
+    function openEditRegModal(r) {
+      editingRegOriginal = r;
+      document.getElementById("regForm").reset();
+      document.getElementById("regFormId").value = r.id;
+      document.getElementById("regFormDate").value = r.tanggal || "";
+      document.getElementById("regFormTitle").value = r.judul || "";
+      document.getElementById("regFormPdfLink").value = r.pdfUrl || "";
+      document.getElementById("regFormImgLink").value = r.imageUrl || "";
+      document.getElementById("regFormPdfFile").value = "";
+      document.getElementById("regFormImgFile").value = "";
+
+      const pdfNotice = document.getElementById("regPdfCurrentNotice");
+      const imgNotice = document.getElementById("regImgCurrentNotice");
+
+      if (r.pdfUrl && String(r.pdfUrl).trim()) {
+        if (pdfNotice) {
+          pdfNotice.style.display = "block";
+          pdfNotice.innerHTML = `<i class="bi bi-file-earmark-check text-success me-1"></i>Dokumen PDF tersimpan (<a href="#" onclick="previewPdf('${escapeHtml(r.pdfUrl)}', '${escapeHtml(r.judul)}'); return false;">Lihat</a>)`;
+        }
+        if (String(r.pdfUrl).startsWith("http")) {
+          switchUploadMethod('pdf', 'link');
+        } else {
+          switchUploadMethod('pdf', 'file');
+        }
+      } else {
+        if (pdfNotice) { pdfNotice.style.display = "none"; pdfNotice.innerHTML = ""; }
+        switchUploadMethod('pdf', 'file');
+      }
+
+      if (r.imageUrl && String(r.imageUrl).trim()) {
+        if (imgNotice) {
+          imgNotice.style.display = "block";
+          imgNotice.innerHTML = `<i class="bi bi-image text-success me-1"></i>Gambar tersimpan (<a href="#" onclick="previewImage('${escapeHtml(r.imageUrl)}', '${escapeHtml(r.judul)}'); return false;">Lihat</a>)`;
+        }
+        if (String(r.imageUrl).startsWith("http")) {
+          switchUploadMethod('img', 'link');
+        } else {
+          switchUploadMethod('img', 'file');
+        }
+      } else {
+        if (imgNotice) { imgNotice.style.display = "none"; imgNotice.innerHTML = ""; }
+        switchUploadMethod('img', 'file');
+      }
+
+      document.getElementById("regModalTitle").textContent = "Edit Peraturan & SOP";
+      new bootstrap.Modal(document.getElementById("regFormModal")).show();
+    }
+
+    async function handleSaveRegulation(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btnSaveReg");
+      const id = document.getElementById("regFormId").value;
+      const tanggal = document.getElementById("regFormDate").value;
+      const judul = document.getElementById("regFormTitle").value;
+
+      let pdfUrl = (document.getElementById("regFormPdfLink").value || "").trim();
+      let imageUrl = (document.getElementById("regFormImgLink").value || "").trim();
+      let pdfFileId = "";
+      let imageFileId = "";
+
+      // Preserve existing if not modified
+      if (!pdfUrl && editingRegOriginal && editingRegOriginal.id === id && editingRegOriginal.pdfUrl) {
+        pdfUrl = editingRegOriginal.pdfUrl;
+        pdfFileId = editingRegOriginal.pdfFileId || "";
+      }
+      if (!imageUrl && editingRegOriginal && editingRegOriginal.id === id && editingRegOriginal.imageUrl) {
+        imageUrl = editingRegOriginal.imageUrl;
+        imageFileId = editingRegOriginal.imageFileId || "";
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...`;
+
+      try {
+        const pdfFileInput = document.getElementById("regFormPdfFile");
+        const imgFileInput = document.getElementById("regFormImgFile");
+        const pdfFile = pdfFileInput && pdfFileInput.files && pdfFileInput.files[0];
+        const imgFile = imgFileInput && imgFileInput.files && imgFileInput.files[0];
+
+        // 1. Process PDF file if selected
+        if (pdfFile) {
+          btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Mengunggah PDF...`;
+          const base64 = await readFileAsBase64(pdfFile);
+          const upRes = await apiCall("uploadFile", {
+            base64Data: base64,
+            fileName: pdfFile.name,
+            mimeType: "application/pdf",
+            folderType: "pdf"
+          });
+          if (upRes && upRes.success) {
+            pdfUrl = upRes.url || upRes.downloadUrl || upRes.fileUrl || base64;
+            pdfFileId = upRes.fileId || "";
+          } else {
+            pdfUrl = base64;
+          }
+        } else if (pdfUrl) {
+          pdfFileId = getDriveFileId(pdfUrl) || pdfFileId;
+        }
+
+        // 2. Process Image file if selected
+        if (imgFile) {
+          btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Mengunggah Gambar...`;
+          const base64 = await readFileAsBase64(imgFile);
+          const upRes = await apiCall("uploadFile", {
+            base64Data: base64,
+            fileName: imgFile.name,
+            mimeType: imgFile.type || "image/jpeg",
+            folderType: "image"
+          });
+          if (upRes && upRes.success) {
+            imageUrl = upRes.url || upRes.directImageUrl || upRes.downloadUrl || base64;
+            imageFileId = upRes.fileId || "";
+          } else {
+            imageUrl = base64;
+          }
+        } else if (imageUrl) {
+          imageFileId = getDriveFileId(imageUrl) || imageFileId;
+        }
+
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan data...`;
+        const data = { tanggal, judul, pdfUrl, imageUrl, pdfFileId, imageFileId };
+        const action = id ? "updateRegulation" : "addRegulation";
+        const res = await apiCall(action, { id, data });
+
+        if (res && res.success) {
+          showToast("Data berhasil disimpan.", "success");
+          const modalEl = document.getElementById("regFormModal");
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (modalInstance) modalInstance.hide();
+          document.getElementById("regForm").reset();
+          editingRegOriginal = null;
+          loadAdminRegulations();
+          loadPublicRegulations();
+        } else {
+          showToast((res && res.message) || "Gagal menyimpan data.", "error");
+        }
+      } catch (err) {
+        console.error("Error saving regulation:", err);
+        showToast("Terjadi kesalahan saat menyimpan peraturan.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = "Simpan Data";
+      }
+    }
+
+    /**
+     * ==================== ADMIN CRUD: MEETING ROOM ====================
+     */
+    async function loadAdminMeetings() {
+      const tbody = document.getElementById("adminMeetingTableBody");
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">Memuat data...</td></tr>`;
+
+      try {
+        const res = await apiCall("getMeetingRooms");
+        if (res.success && res.data) {
+          if (res.data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-muted">Belum ada booking meeting.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = res.data.map((m, i) => {
+            let badgeClass = "bg-secondary";
+            if (m.status === "Disetujui") badgeClass = "bg-success";
+            else if (m.status === "Menunggu") badgeClass = "bg-warning text-dark";
+            else if (m.status === "Ditolak") badgeClass = "bg-danger";
+            else if (m.status === "Selesai") badgeClass = "bg-info text-dark";
+
+            return `
+              <tr>
+                <td>${i + 1}</td>
+                <td><span class="badge bg-light text-dark border">${m.tanggal}</span></td>
+                <td class="fw-semibold text-primary">${m.waktu || (m.jamMulai + " - " + m.jamSelesai)}</td>
+                <td><span class="badge bg-dark">${escapeHtml(m.ruang)}</span></td>
+                <td>${escapeHtml(m.agenda)}</td>
+                <td><small class="text-muted">${escapeHtml(m.pihakHadir)}</small></td>
+                <td><span class="badge ${badgeClass} badge-status">${m.status}</span></td>
+                <td class="text-center">
+                  <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-secondary" onclick='openEditMeetingModal(${JSON.stringify(m)})'><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-outline-danger" onclick="confirmDelete('meeting', '${m.id}')"><i class="bi bi-trash"></i></button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          }).join("");
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Gagal memuat meeting room.</td></tr>`;
+      }
+    }
+
+    function openAddMeetingModal() {
+      document.getElementById("meetingForm").reset();
+      document.getElementById("meetingFormId").value = "";
+      document.getElementById("meetingFormDate").value = new Date().toISOString().substring(0, 10);
+      document.getElementById("meetingModalTitle").textContent = "Tambah Jadwal Meeting";
+      new bootstrap.Modal(document.getElementById("meetingFormModal")).show();
+    }
+
+    function openEditMeetingModal(m) {
+      document.getElementById("meetingFormId").value = m.id;
+      document.getElementById("meetingFormDate").value = m.tanggal;
+      document.getElementById("meetingFormStartTime").value = m.jamMulai;
+      document.getElementById("meetingFormEndTime").value = m.jamSelesai;
+      document.getElementById("meetingFormRoom").value = m.ruang;
+      document.getElementById("meetingFormAgenda").value = m.agenda;
+      document.getElementById("meetingFormAttendees").value = m.pihakHadir;
+      document.getElementById("meetingFormStatus").value = m.status || "Menunggu";
+      document.getElementById("meetingModalTitle").textContent = "Edit Jadwal Meeting";
+      new bootstrap.Modal(document.getElementById("meetingFormModal")).show();
+    }
+
+    async function handleSaveMeeting(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btnSaveMeeting");
+      const id = document.getElementById("meetingFormId").value;
+      const tanggal = document.getElementById("meetingFormDate").value;
+      const jamMulai = document.getElementById("meetingFormStartTime").value;
+      const jamSelesai = document.getElementById("meetingFormEndTime").value;
+      const ruang = document.getElementById("meetingFormRoom").value;
+      const agenda = document.getElementById("meetingFormAgenda").value;
+      const pihakHadir = document.getElementById("meetingFormAttendees").value;
+      const status = document.getElementById("meetingFormStatus").value;
+
+      if (timeToMinutes(jamSelesai) <= timeToMinutes(jamMulai)) {
+        showToast("Jam selesai tidak boleh lebih kecil dari jam mulai.", "warning");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...`;
+
+      try {
+        const data = { tanggal, jamMulai, jamSelesai, ruang, agenda, pihakHadir, status };
+        const action = id ? "updateMeetingRoom" : "addMeetingRoom";
+        const res = await apiCall(action, { id, data });
+
+        if (res.success) {
+          showToast("Data berhasil disimpan.", "success");
+          bootstrap.Modal.getInstance(document.getElementById("meetingFormModal")).hide();
+          loadAdminMeetings();
+          loadPublicMeetings();
+        } else {
+          showToast(res.message || "Maaf, ruang meeting tersebut sudah digunakan pada waktu tersebut.", "error");
+        }
+      } catch (err) {
+        showToast("Terjadi kesalahan saat menyimpan data meeting.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = "Simpan";
+      }
+    }
+
+    /**
+     * ==================== ADMIN CRUD: GUEST VISIT ====================
+     */
+    async function loadAdminGuests() {
+      const tbody = document.getElementById("adminGuestTableBody");
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">Memuat data...</td></tr>`;
+
+      try {
+        const res = await apiCall("getGuestVisits");
+        if (res.success && res.data) {
+          if (res.data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">Belum ada data kunjungan.</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = res.data.map((g, i) => `
+            <tr>
+              <td>${i + 1}</td>
+              <td class="text-center">
+                ${g.fotoUrl ? `<img src="${escapeHtml(g.fotoUrl)}" alt="Foto" class="guest-thumb" onclick="previewImage('${escapeHtml(g.fotoUrl)}', 'Foto: ${escapeHtml(g.namaTamu)}')" />` : `<div class="bg-light rounded p-2 text-muted" style="width:48px;height:48px;display:inline-flex;align-items:center;justify-content:center;"><i class="bi bi-person"></i></div>`}
+              </td>
+              <td class="fw-bold">${escapeHtml(g.namaTamu)}</td>
+              <td><span class="badge bg-light text-dark border">${g.tanggalVisit}</span></td>
+              <td>${escapeHtml(g.tujuanVisit)}</td>
+              <td><span class="badge bg-primary bg-opacity-10 text-primary">${escapeHtml(g.bertemuDengan)}</span></td>
+              <td class="text-center">
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-secondary" onclick='openEditGuestModal(${JSON.stringify(g)})'><i class="bi bi-pencil"></i></button>
+                  <button class="btn btn-outline-danger" onclick="confirmDelete('guest', '${g.id}')"><i class="bi bi-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          `).join("");
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-danger">Gagal memuat data tamu.</td></tr>`;
+      }
+    }
+
+    function openAddGuestModal() {
+      document.getElementById("guestForm").reset();
+      document.getElementById("guestFormId").value = "";
+      document.getElementById("guestFormDate").value = new Date().toISOString().substring(0, 10);
+      document.getElementById("guestModalTitle").textContent = "Catat Kunjungan Tamu";
+      capturedPhotoBase64 = "";
+      document.getElementById("photoFilePreview").style.display = "none";
+      document.getElementById("cameraSnapshotPreview").style.display = "none";
+      switchPhotoSource("device");
+      new bootstrap.Modal(document.getElementById("guestFormModal")).show();
+    }
+
+    function openEditGuestModal(g) {
+      document.getElementById("guestFormId").value = g.id;
+      document.getElementById("guestFormName").value = g.namaTamu;
+      document.getElementById("guestFormDate").value = g.tanggalVisit;
+      document.getElementById("guestFormPurpose").value = g.tujuanVisit;
+      document.getElementById("guestFormMeetWith").value = g.bertemuDengan;
+      document.getElementById("guestModalTitle").textContent = "Edit Kunjungan Tamu";
+      capturedPhotoBase64 = g.fotoUrl || "";
+      if (g.fotoUrl) {
+        document.getElementById("imgDevicePreview").src = g.fotoUrl;
+        document.getElementById("photoFilePreview").style.display = "block";
+      } else {
+        document.getElementById("photoFilePreview").style.display = "none";
+      }
+      switchPhotoSource("device");
+      new bootstrap.Modal(document.getElementById("guestFormModal")).show();
+    }
+
+    async function handleSaveGuest(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btnSaveGuest");
+      const id = document.getElementById("guestFormId").value;
+      const namaTamu = document.getElementById("guestFormName").value;
+      const tanggalVisit = document.getElementById("guestFormDate").value;
+      const tujuanVisit = document.getElementById("guestFormPurpose").value;
+      const bertemuDengan = document.getElementById("guestFormMeetWith").value;
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...`;
+
+      try {
+        let fotoUrl = capturedPhotoBase64;
+        let fotoFileId = "";
+
+        // If captured photo is a new base64 string, upload to Drive if GAS active
+        if (capturedPhotoBase64 && capturedPhotoBase64.startsWith("data:")) {
+          const upRes = await apiCall("uploadGuestPhoto", {
+            base64Data: capturedPhotoBase64,
+            fileName: "guest_" + namaTamu.replace(/\s+/g, "_") + "_" + Date.now() + ".jpg"
+          });
+          if (upRes.success) {
+            fotoUrl = upRes.url || upRes.directImageUrl || upRes.downloadUrl;
+            fotoFileId = upRes.fileId || "";
+          }
+        }
+
+        const data = { namaTamu, tanggalVisit, tujuanVisit, bertemuDengan, fotoUrl, fotoFileId };
+        const action = id ? "updateGuestVisit" : "addGuestVisit";
+        const res = await apiCall(action, { id, data });
+
+        if (res.success) {
+          showToast("Data berhasil disimpan.", "success");
+          stopCameraStream();
+          bootstrap.Modal.getInstance(document.getElementById("guestFormModal")).hide();
+          loadAdminGuests();
+          loadPublicGuestVisits();
+        } else {
+          showToast(res.message || "Gagal menyimpan data tamu.", "error");
+        }
+      } catch (err) {
+        showToast("Terjadi kesalahan saat menyimpan tamu.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = "Simpan Tamu";
+      }
+    }
+
+    /**
+     * ==================== DELETE CONFIRMATION ====================
+     */
+    let deleteTarget = { type: "", id: "" };
+
+    function confirmDelete(type, id) {
+      deleteTarget = { type, id };
+      const msgEl = document.getElementById("deleteConfirmMessage");
+      msgEl.textContent = "Apakah Anda yakin ingin menghapus data ini?";
+      
+      const btn = document.getElementById("btnConfirmDelete");
+      btn.onclick = executeDelete;
+
+      new bootstrap.Modal(document.getElementById("deleteConfirmModal")).show();
+    }
+
+    async function executeDelete() {
+      const btn = document.getElementById("btnConfirmDelete");
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`;
+
+      try {
+        let action = "";
+        if (deleteTarget.type === "reg") action = "deleteRegulation";
+        else if (deleteTarget.type === "meeting") action = "deleteMeetingRoom";
+        else if (deleteTarget.type === "guest") action = "deleteGuestVisit";
+
+        const res = await apiCall(action, { id: deleteTarget.id });
+        if (res.success) {
+          showToast("Data berhasil dihapus.", "success");
+          bootstrap.Modal.getInstance(document.getElementById("deleteConfirmModal")).hide();
+          if (deleteTarget.type === "reg") { loadAdminRegulations(); loadPublicRegulations(); }
+          else if (deleteTarget.type === "meeting") { loadAdminMeetings(); loadPublicMeetings(); }
+          else if (deleteTarget.type === "guest") { loadAdminGuests(); loadPublicGuestVisits(); }
+        } else {
+          showToast(res.message || "Gagal menghapus data.", "error");
+        }
+      } catch (e) {
+        showToast("Terjadi kesalahan saat menghapus data.", "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = "Ya, Hapus";
+      }
+    }
+
+    /**
+     * ==================== HELPERS ====================
+     */
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Initialize application on DOM ready
+    document.addEventListener("DOMContentLoaded", () => {
+      updateAuthUI();
+      updateGasStatusUI(false);
+      checkInitialGasStatus();
+      navigateTo("home");
+    });
+  </script>
+</body>
+</html>
